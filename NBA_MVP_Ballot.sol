@@ -1,3 +1,5 @@
+
+
 /**
  * @file NBA_MVP_Ballot.sol
  * @author Mohammed Samsuddin <Mshmsudd@buffalo.edu>
@@ -9,10 +11,14 @@ pragma solidity >=0.4.22 <0.6.0;
 
 contract NBA_MVP_Ballot {
     
-    // A vote comprises 2 parts, the wallet address of the voter, and the choice he makes
-    struct vote{
+    // A vote comprises 2 parts, the wallet address of the voter, and the choice he makes. 
+    struct vote {
         address voterAddress;
-        bool choice;
+        uint 1st;
+        uint 2nd;
+        uint 3rd;
+        uint 4th;
+        uint 5th;
     }
     
     
@@ -21,6 +27,7 @@ contract NBA_MVP_Ballot {
         string voterName;
         bool voted;
     }
+    
     
     
     // totalVoter is used to track the total number of voters in the voters register and totalVote is used to track the total number of votes cast.
@@ -48,6 +55,8 @@ contract NBA_MVP_Ballot {
     // The challenge with using arrays in an Ethereum blockchain is that you are likely to start running out of gas while trying to traverse the records of a considerably sized array. 
     mapping(address => voter) public voterRegister;
     
+    // candidate are stored in a mapping called candidateRegister
+    mapping(string => vote) public candidateRegister
     
     
     // Creates a new ballot contract.
@@ -109,6 +118,16 @@ contract NBA_MVP_Ballot {
         totalVoter++;
         emit voterAdded(_voterAddress);
     }
+    
+    
+    
+    
+    // add candidate
+    // Next, the official add candidate to the candidateRegister mapping.
+    function addCandidate(string memory _candidateName) public inState(State.Created) onlyOfficial {
+        
+        
+    }
 
 
 
@@ -140,6 +159,11 @@ contract NBA_MVP_Ballot {
     function endVoting() public inState(State.Voting) onlyOfficial {
         state = State.Ended;
         emit voteEnded(finalResult);
+    }
+    
+    
+    function finalResult() public inState(State.Ended) {
+        
     }
     
     
