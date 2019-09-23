@@ -1,5 +1,6 @@
 
 
+
 /**
  * @file NBA_MVP_Ballot.sol
  * @author Mohammed Samsuddin <Mshmsudd@buffalo.edu>
@@ -13,12 +14,12 @@ contract NBA_MVP_Ballot {
     
     // A vote comprises 2 parts, the wallet address of the voter, and the choice he makes. 
     struct vote {
-        address voterAddress;
-        uint 1st;
-        uint 2nd;
-        uint 3rd;
-        uint 4th;
-        uint 5th;
+        uint first;
+        uint second;
+        uint third;
+        uint fourth;
+        uint fifth;
+        uint totalPoints;
     }
     
     
@@ -36,6 +37,12 @@ contract NBA_MVP_Ballot {
     // and I do not wish to use arrays due to the high chance of running into gas limitation issues.
     uint public totalVoter = 0;
     uint public totalVote = 0;
+    
+    // total candidate 
+    uint public totalCandidate = 0;
+    
+    // candidate id
+    uint public candidateID = 0;
     
     // The ballot official name, wallet address and proposal are kept as public variables for everyone to see. 
     address public ballotOfficialAddress;      
@@ -56,7 +63,7 @@ contract NBA_MVP_Ballot {
     mapping(address => voter) public voterRegister;
     
     // candidate are stored in a mapping called candidateRegister
-    mapping(string => vote) public candidateRegister
+    mapping(uint => vote) public candidateRegister;
     
     
     // Creates a new ballot contract.
@@ -82,7 +89,7 @@ contract NBA_MVP_Ballot {
 		_;
 	}
 
-    // The modifier for inState is declared from lines 78 to 81.
+    // The modifier for inState is declared from lines 89 to 94.
     // It checks to ensure that the contract is currently in the state provided as variable to the inState() modifier.
 	modifier inState(State _state) {
 		require(state == _state);
@@ -92,6 +99,7 @@ contract NBA_MVP_Ballot {
     
     // event
     event voterAdded(address voter);
+    event candidateAdded(string _candidateName);
     event voteStarted();
     event voteEnded(uint finalResult);
     event voteDone(address voter);
@@ -125,12 +133,18 @@ contract NBA_MVP_Ballot {
     // add candidate
     // Next, the official add candidate to the candidateRegister mapping.
     function addCandidate(string memory _candidateName) public inState(State.Created) onlyOfficial {
-        
+        vote memory v;
+        v.first = 0;
+        v.second = 0;
+        v.third = 0;
+        v.fourth = 0;
+        v.fifth = 0;
+        candidateID++;
+        candidateRegister[candidateID] = v;
+        totalCandidate++;
+        emit candidateAdded(_candidateName);
         
     }
-
-
-
 
 
 
@@ -145,11 +159,18 @@ contract NBA_MVP_Ballot {
 
 
     // vote
-    function Vote() public inState(State.Voting) {
+    function Vote() public inState(State.Voting) returns (bool voted) {
         bool found = false;
         
         
+        if (bytes(voterRegister[msg.sender].voterName).length != 0 && !voterRegister[msg.sender].voted) {
+            voterRegister[msg.sender].voted = true;
+            
+            
+        }
+        
         emit voteDone(msg.sender);
+        return found;
     }
     
     
@@ -158,13 +179,13 @@ contract NBA_MVP_Ballot {
     // 
     function endVoting() public inState(State.Voting) onlyOfficial {
         state = State.Ended;
-        emit voteEnded(finalResult);
+
     }
     
     
-    function finalResult() public inState(State.Ended) {
+    /*function finalResult() public inState(State.Ended) {
         
-    }
+    }*/
     
     
     
