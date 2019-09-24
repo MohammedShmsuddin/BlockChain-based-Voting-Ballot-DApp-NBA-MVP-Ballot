@@ -41,7 +41,7 @@ contract NBA_MVP_Ballot {
     // A voter has 2 attributes, his name, and whether or not he has voted.
     struct voter{
      address voter;
-        bool isVoted;
+        bool hasVoted;
         bool isRegistered;
         
     }
@@ -97,10 +97,14 @@ function registerVoter(address _voterAddress) public {
 // user will enter playerId of their top preferences
 
 function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public {
-    if(voterRegister[_voterAddress].isRegistered){  // verifying that voter is registered
-     candidateRegister[pref1].points += 10;
+    if(voterRegister[_voterAddress].isRegistered && !(voterRegister[_voterAddress].hasVoted)) {  // verifying that voter is registered
+     candidateRegister[pref1].points += 10;                                                     // also that the user hasn't already voted!
      candidateRegister[pref2].points += 7;
-                                      //vote!  update players points accordingly
+     candidateRegister[pref3].points += 5;
+     candidateRegister[pref4].points += 3;
+     candidateRegister[pref5].points += 1;
+    voterRegister[_voterAddress].hasVoted = true;
+                                                           //vote!  update players points accordingly
     }
 }
     
