@@ -3,6 +3,7 @@
 /**
  * @file NBA_MVP_Ballot.sol
  * @author Mohammed Samsuddin <Mshmsudd@buffalo.edu>
+ * @author Taktuk Taktuk <taktukta@buffalo.edu>
  * @date created 22nd Sept 2019
  * @date last modified 26th Sept 2019
  */
@@ -11,42 +12,23 @@ pragma solidity >=0.4.22 <0.6.0;
 
 contract NBA_MVP_Ballot {
     
-    
-    
-// have a function that will initialize the five MVP canditdates
-
-    
-
 
     // A vote comprises 2 parts, the wallet address of the voter, and the choice he makes. 
-    struct vote {
-        address voterAddress;
+    // struct vote {
+    //     address voterAddress;
         
-    }
+    // }
     
-    //  getVote ... parse ... 
-    
-
-
-   
-  
-  
-//   function votePlayer(Player first,Player second, Player third,Player fourth,Player fifth) public {
-      
-      
-//      // voter enters preference 
-     
-//   }
     
     // A voter has 2 attributes, his name, and whether or not he has voted.
     struct voter{
-     address voter;
+        address voter;
         bool hasVoted;
         bool isRegistered;
         
     }
     
-    struct preference{ 
+        struct preference{ 
         uint playerIdOne;  //player ID of first preference in voter's CHOICE 
         uint playerIdTwo;
         uint playerIdThree;
@@ -55,11 +37,11 @@ contract NBA_MVP_Ballot {
     }
     
     
-    struct Player{
-    uint playerId;
-    uint points;                                             // can we update this along the way?
-    bool qualifiedCandidate;
-        
+            struct Player{
+            uint playerId;
+            uint points;                                             // can we update this along the way?
+            bool qualifiedCandidate;
+                
     }
     //Player(55 , 0 )
     // voter 
@@ -109,12 +91,20 @@ function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3,
 }
     
     
+/*
+
+This is a warning not an error. You can ignore it and nothing bad will happen.
+
+However, it is helpfully telling you that since your function doesn't change 
+the state, you can mark it as view. See this answer for what that means and why it's a good idea:
 
 
+so it will be fixed if we implement it to our main ballot.sol
+*/
 function tallyPoints (uint _playerId) public returns(uint){
    if(candidateRegister[_playerId].qualifiedCandidate){
    return candidateRegister[_playerId].points;
-   } 
+   }
   return 0;
     // candidateRegister[_playerId].playerId;
 }
@@ -123,17 +113,7 @@ function tallyPoints (uint _playerId) public returns(uint){
 
 
     
-        
-     
     
-    //first make sure Voter is registered...
-    // use voter's address to vote
-    //   function voteCandidate( address _addressOfVoter,string memory firstpick,  string memory secondpick,string memory thirdpick,string memory fourthpick,string memory fifthpickr ) public inState(State.Created) onlyOfficial {
-   
-    // candidateRegister[_candidateName] = Player(PICK PLAYER NAME , POINTS )
-   
-   
-    // }
 
     
     
@@ -152,12 +132,6 @@ function tallyPoints (uint _playerId) public returns(uint){
     //     emit voterAdded(_voterAddress);
     // }
     
-    
-    
-    
-    // add candidate
-    // Next, the official add candidate to the candidateRegister mapping.
   
-// addCandidate("Giannis Antetekounmpo")
 
 }
