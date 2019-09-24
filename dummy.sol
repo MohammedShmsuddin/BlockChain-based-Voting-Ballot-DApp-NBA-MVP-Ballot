@@ -57,7 +57,9 @@ contract NBA_MVP_Ballot {
     
     struct Player{
     uint playerId;
-    uint points;   // can we update this along the way?
+    uint points;                                             // can we update this along the way?
+    bool qualifiedCandidate;
+        
     }
     //Player(55 , 0 )
     // voter 
@@ -71,12 +73,11 @@ contract NBA_MVP_Ballot {
     mapping(address => preference) votePreference;
 // now say we have 0x9Dd preference 55 11 22 44 10  .. we can match those playerId and increment points based on who placed what 
 
-function registerCandidate(uint  playerId) public returns (uint ret){
-        candidateNumber += 1;  // now that we have a candidate registered. 
-        candidateRegister[candidateNumber] = Player(playerId, 0) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
-        ret = playerId;
-          return ret;
-      }
+function registerCandidate(uint _playerId) public returns (uint) {
+        candidateRegister[_playerId] = Player(_playerId, 0, true) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
+        candidateNumber += 1;  // now that we have a candidate registered , we can increase the counter
+        return _playerId;
+}
       
       
 function registerVoter(address _voterAddress) public {
@@ -84,12 +85,34 @@ function registerVoter(address _voterAddress) public {
     //  v = voter(_voterAddress , false, true );
     voterRegister[_voterAddress] = voter(_voterAddress, false,true);
     }
-    
+    /*
+1st place - 10 points
+2nd place - 7 points
+3rd place - 5 points
+4th place - 3 points
+5th place - 1 point
+
+*/
+
+// user will enter playerId of their top preferences
+
 function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public {
     if(voterRegister[_voterAddress].isRegistered){  // verifying that voter is registered
-                                                  //vote!  update players points accordingly
+     candidateRegister[pref1].points += 10;
+     candidateRegister[pref2].points += 7;
+                                      //vote!  update players points accordingly
     }
+}
     
+    
+
+
+function tallyPoints (uint _playerId) public returns(uint){
+   if(candidateRegister[_playerId].qualifiedCandidate){
+   return candidateRegister[_playerId].points;
+   } 
+  return 0;
+    // candidateRegister[_playerId].playerId;
 }
     
 //  verify that the voter is registered, and if so then record their preference
