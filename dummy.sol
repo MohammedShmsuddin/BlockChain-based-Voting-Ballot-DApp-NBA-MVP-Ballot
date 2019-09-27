@@ -3,7 +3,6 @@
 /**
  * @file NBA_MVP_Ballot.sol
  * @author Mohammed Samsuddin <Mshmsudd@buffalo.edu>
- * @author Taktuk Taktuk <taktukta@buffalo.edu>
  * @date created 22nd Sept 2019
  * @date last modified 26th Sept 2019
  */
@@ -40,24 +39,28 @@ contract NBA_MVP_Ballot {
             struct Player{
             uint playerId;
             uint points;                                             // can we update this along the way?
-            bool qualifiedCandidate;
                 
     }
-    //Player(55 , 0 )
-    // voter 
     
     
+
+     Player[5] player;
     // candidate are stored in a mapping called candidateRegister
     // mapping(string => vote) public candidateRegister;
-    uint candidateNumber = 0 ;
-    mapping(uint => Player)candidateRegister;
+    uint candidateNumber = 0 ; 
+    mapping(uint => Player)candidateRegister;  // fix this 
     mapping(address => voter) voterRegister;
     mapping(address => preference) votePreference;
+    
+    
 // now say we have 0x9Dd preference 55 11 22 44 10  .. we can match those playerId and increment points based on who placed what 
 
 function registerCandidate(uint _playerId) public returns (uint) {
+
         candidateRegister[_playerId] = Player(_playerId, 0, true) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
         candidateNumber += 1;  // now that we have a candidate registered , we can increase the counter
+        player[iter] = candidateRegister[_playerId];
+        iter++;
         return _playerId;
 }
       
@@ -97,17 +100,27 @@ This is a warning not an error. You can ignore it and nothing bad will happen.
 
 However, it is helpfully telling you that since your function doesn't change 
 the state, you can mark it as view. See this answer for what that means and why it's a good idea:
-
+source: https://ethereum.stackexchange.com/questions/39561/solidity-function-state-mutability-warning?noredirect=1&lq=1
 
 so it will be fixed if we implement it to our main ballot.sol
 */
-function tallyPoints (uint _playerId) public returns(uint){
-   if(candidateRegister[_playerId].qualifiedCandidate){
-   return candidateRegister[_playerId].points;
-   }
-  return 0;
+function tallyPoints (uint _playerId) public view returns(uint _points){
+  _points = candidateRegister[_playerId].points;
+ return _points;
     // candidateRegister[_playerId].playerId;
 }
+
+
+  function winningProposal() public view returns (uint _winningProposal) {
+        uint winningVoteCount = 0;
+    
+        for (uint prop = 0; prop < player.length; prop++)
+            if (player[prop].points > winningVoteCount) {
+                winningVoteCount = player[prop].points;
+                _winningProposal = player[prop].playerId;
+            }
+          
+    }
     
 //  verify that the voter is registered, and if so then record their preference
 
