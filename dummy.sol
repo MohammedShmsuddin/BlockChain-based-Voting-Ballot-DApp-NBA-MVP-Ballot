@@ -24,21 +24,16 @@ contract NBA_MVP_Ballot {
         address voter;
         bool hasVoted;
         bool isRegistered;
-        
+
     }
     
-        struct preference{ 
-        uint playerIdOne;  //player ID of first preference in voter's CHOICE 
-        uint playerIdTwo;
-        uint playerIdThree;
-        uint playerIdFour;
-        uint playerIdFive;
-    }
+
     
     
             struct Player{
             uint playerId;
             uint points;                                             // can we update this along the way?
+            bool isRegistered;
                 
     }
     
@@ -48,22 +43,32 @@ contract NBA_MVP_Ballot {
     // candidate are stored in a mapping called candidateRegister
     // mapping(string => vote) public candidateRegister;
     uint candidateNumber = 0 ; 
-    mapping(uint => Player)candidateRegister;  // fix this 
+    mapping(uint => Player)candidateRegister;  // 
     mapping(address => voter) voterRegister;
-    mapping(address => preference) votePreference;
-    
-    
+    mapping(address => uint) votePreference;  // for preference.
+    uint iter= 0;
+
 // now say we have 0x9Dd preference 55 11 22 44 10  .. we can match those playerId and increment points based on who placed what 
 
 function registerCandidate(uint _playerId) public returns (uint) {
-
         candidateRegister[_playerId] = Player(_playerId, 0, true) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
         candidateNumber += 1;  // now that we have a candidate registered , we can increase the counter
-        player[iter] = candidateRegister[_playerId];
-        iter++;
+        player[iter] = candidateRegister[_playerId];  // added to player 
+        iter += 1;
         return _playerId;
 }
-      
+
+function unRegisterCandidate(uint _playerId) public  {
+        candidateRegister[_playerId] = Player(_playerId, 0, false) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
+        candidateNumber -= 1;
+}
+
+function unRegisterVoter(address _voterAddress) public {
+    //  registerVoter[_voterAddress] = voter(_voterAddress,false);
+    //  v = voter(_voterAddress , false, true );
+    voterRegister[_voterAddress] = voter(_voterAddress, false,false);
+    }
+
       
 function registerVoter(address _voterAddress) public {
     //  registerVoter[_voterAddress] = voter(_voterAddress,false);
@@ -113,14 +118,17 @@ function tallyPoints (uint _playerId) public view returns(uint _points){
 
   function winningProposal() public view returns (uint _winningProposal) {
         uint winningVoteCount = 0;
-    
-        for (uint prop = 0; prop < player.length; prop++)
+
+        for (uint prop = 0; prop < candidateNumber; prop++){
             if (player[prop].points > winningVoteCount) {
                 winningVoteCount = player[prop].points;
                 _winningProposal = player[prop].playerId;
             }
-          
+            
     }
+    return _winningProposal;
+  }
+    
     
 //  verify that the voter is registered, and if so then record their preference
 
