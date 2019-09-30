@@ -5,7 +5,7 @@ Description: Balloting is an age old method for realizing consensus among partic
 
 Our Use Case: NBA MVP Award selection voting
 
-Voters: Voters are Sportwriters and Bradcasters from USA/Canada. Each member of the voting panel casts a vote for first to           fifth place selections.
+Voters: Voters are Sportwriters and Broadcasters from USA/Canada. Each member of the voting panel casts a vote for first to           fifth place selections.
 
         1st place -> 10 points
         2nd place -> 7 points
