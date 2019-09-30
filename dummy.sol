@@ -3,6 +3,7 @@
 /**
  * @file NBA_MVP_Ballot.sol
  * @author Mohammed Samsuddin <Mshmsudd@buffalo.edu>
+ * @author Taktuk Taktuk < taktukta @ buffalo.edu > 
  * @date created 22nd Sept 2019
  * @date last modified 26th Sept 2019
  */
@@ -11,15 +12,6 @@ pragma solidity >=0.4.22 <0.6.0;
 
 contract NBA_MVP_Ballot {
     
-
-    // A vote comprises 2 parts, the wallet address of the voter, and the choice he makes. 
-    // struct vote {
-    //     address voterAddress;
-        
-    // }
-    
-    
-    // A voter has 2 attributes, his name, and whether or not he has voted.
     struct voter{
         address voter;
         bool hasVoted;
@@ -27,30 +19,43 @@ contract NBA_MVP_Ballot {
 
     }
     
-
-    
-    
             struct Player{
             uint playerId;
-            uint points;                                             // can we update this along the way?
+            uint points;                                            
             bool isRegistered;
                 
     }
     
+    // -------------------------------------------------------------------------------
+    
     
 
-     Player[5] player;
-    // candidate are stored in a mapping called candidateRegister
-    // mapping(string => vote) public candidateRegister;
-    uint candidateNumber = 0 ; 
+    Player[5] player; 
+    uint candidateNumber = 0 ;   // to keep track of how many candidates there are
+    uint iter= 0;
+
     mapping(uint => Player)candidateRegister;  // 
     mapping(address => voter) voterRegister;
     mapping(address => uint) votePreference;  // for preference.
-    uint iter= 0;
 
-// now say we have 0x9Dd preference 55 11 22 44 10  .. we can match those playerId and increment points based on who placed what 
 
+// ------------------------------------------------------------------------------------------------------
+
+
+ // to register such voter, we will locate their voter object and make their instance variable isRegistered to true
+     
+function registerVoter(address _voterAddress) public {
+    voterRegister[_voterAddress] = voter(_voterAddress, false,true);  //voter ( voterId , hasVoted , isRegistered)
+    }
+    
+    
+//candidate means the Player that will be contending for MVP 
+
+// this function will take in the playerID of candidate and register them accordingdly
 function registerCandidate(uint _playerId) public returns (uint) {
+    if(candidateNumber > 5 ){
+         // what if candidates are capped?
+    }
         candidateRegister[_playerId] = Player(_playerId, 0, true) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
         candidateNumber += 1;  // now that we have a candidate registered , we can increase the counter
         player[iter] = candidateRegister[_playerId];  // added to player 
@@ -58,23 +63,27 @@ function registerCandidate(uint _playerId) public returns (uint) {
         return _playerId;
 }
 
+// to unregister such candidate, we will locate their Player object and make their instance variable isRegistered to false
 function unRegisterCandidate(uint _playerId) public  {
         candidateRegister[_playerId] = Player(_playerId, 0, false) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
         candidateNumber -= 1;
+        
+        
+        for(uint i=0; i < candidateNumber;i++){
+            if(candidateRegister[i].playerId == _playerId){
+                player[i] = Player(0,0,false);  // if player exists in player array.. remove it somehow
+            }
+            
+        }
 }
 
+// to unregister such voter, we will locate their voter object and make their instance variable isRegistered to false
+
 function unRegisterVoter(address _voterAddress) public {
-    //  registerVoter[_voterAddress] = voter(_voterAddress,false);
-    //  v = voter(_voterAddress , false, true );
-    voterRegister[_voterAddress] = voter(_voterAddress, false,false);
+    voterRegister[_voterAddress] = voter(_voterAddress, false,false);   // hasVoted == false
     }
 
-      
-function registerVoter(address _voterAddress) public {
-    //  registerVoter[_voterAddress] = voter(_voterAddress,false);
-    //  v = voter(_voterAddress , false, true );
-    voterRegister[_voterAddress] = voter(_voterAddress, false,true);
-    }
+
     /*
 1st place - 10 points
 2nd place - 7 points
@@ -85,7 +94,7 @@ function registerVoter(address _voterAddress) public {
 */
 
 // user will enter playerId of their top preferences
-
+// the candidates will have their points updated accoridng to the voter's preferences
 function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public {
     if(voterRegister[_voterAddress].isRegistered && !(voterRegister[_voterAddress].hasVoted)) {  // verifying that voter is registered
      candidateRegister[pref1].points += 10;                                                     // also that the user hasn't already voted!
@@ -98,61 +107,21 @@ function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3,
     }
 }
     
-    
-/*
-
-This is a warning not an error. You can ignore it and nothing bad will happen.
-
-However, it is helpfully telling you that since your function doesn't change 
-the state, you can mark it as view. See this answer for what that means and why it's a good idea:
-source: https://ethereum.stackexchange.com/questions/39561/solidity-function-state-mutability-warning?noredirect=1&lq=1
-
-so it will be fixed if we implement it to our main ballot.sol
-*/
+// this is used to collect all the points. We do so by accessing the playerID of the hashmap to get value -> points
 function tallyPoints (uint _playerId) public view returns(uint _points){
   _points = candidateRegister[_playerId].points;
  return _points;
-    // candidateRegister[_playerId].playerId;
 }
 
-
-  function winningProposal() public view returns (uint _winningProposal) {
-        uint winningVoteCount = 0;
-
-        for (uint prop = 0; prop < candidateNumber; prop++){
-            if (player[prop].points > winningVoteCount) {
-                winningVoteCount = player[prop].points;
-                _winningProposal = player[prop].playerId;
+//this function is not working yet
+  function winningProposal() public view returns (uint) {
+        uint256 mostPoints = 0;
+        uint winner ; // playerID of player with most points 
+        for (uint i = 0; i < player.length; i++)
+            if (player[i].points > mostPoints) {
+                mostPoints = player[i].points;
+                winner = player[i].playerId;
             }
-            
+            return winner;
     }
-    return _winningProposal;
   }
-    
-    
-//  verify that the voter is registered, and if so then record their preference
-
-
-    
-    
-
-    
-    
-    // add voter
-    // Next, the official add voters to the voterRegister mapping.
-    // This involves entering the voter's wallet address and his name into the mapping.
-    // Line 104 states that this function is only executable when the contract is in the state of "Created",
-    // so that no one, not even the chairman is allowed to add new voters once voting has begun.
-    // Lines 104 says onlyOfficial, which means that only the official himself is allowed to run this function. You wouldn't want the voter to be able to add himself to the voterRegister!
-    // function addVoter(address _voterAddress, string memory _voterName) public inState(State.Created) onlyOfficial {
-    //     voter memory v;
-    //     v.voterName = _voterName;
-    //     v.voted = false;
-    //     voterRegister[_voterAddress] = v;
-    //     totalVoter++;
-    //     emit voterAdded(_voterAddress);
-    // }
-    
-  
-
-}
