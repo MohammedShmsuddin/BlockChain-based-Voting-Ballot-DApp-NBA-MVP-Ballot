@@ -1,7 +1,5 @@
 
 
-
-
 /**
  * @file NBA_MVP_Ballot.sol
  * @author Mohammed Samsuddin <Mshmsudd@buffalo.edu>
@@ -44,6 +42,7 @@ contract NBA_MVP_Ballot {
     uint public candidateNumber = 0 ;   // to keep track of how many candidates there are
     uint public voterNumber = 0 ;   // to keep track of how many voter there are
     uint public totalVote = 0; // total number of vote
+    uint public winner = 0;
     
     // The ballot official name, wallet address and proposal are kept as public variables for everyone to see. 
     address public ballotOfficialAddress; 
@@ -120,6 +119,10 @@ contract NBA_MVP_Ballot {
 
     // to register such voter, we will locate their voter object and make their instance variable isRegistered to true
     function registerVoter(address _voterAddress) public inState(State.Created) onlyOfficial {
+        
+        require(_voterAddress != ballotOfficialAddress);
+        
+        // the ballot official are not allowed to vote
         voter memory v;
         v.voterAddress = _voterAddress;
         v.hasVoted = false;
@@ -132,7 +135,7 @@ contract NBA_MVP_Ballot {
     
     
     
-    //candidate means the Player that will be contending for MVP 
+    // candidate means the Player that will be contending for MVP 
     // this function will take in the playerID of candidate and register them accordingdly
     function registerCandidate(uint _playerId) public inState(State.Created) onlyOfficial returns (uint) {
         
@@ -224,10 +227,10 @@ contract NBA_MVP_Ballot {
     
     
     // Return the Winner
-    function winningProposal() public inState(State.Ended) returns (uint) {
+    function winningProposal() public inState(State.Ended) {
         
         uint256 mostPoints = 0;
-        uint winner ; // playerID of player with most points 
+        //uint winner ; // playerID of player with most points 
         
         for (uint i = 0; i < candidateNumber; i++){
             if (candidateRegister[candidatePoints[i]].points > mostPoints) { // candidate[i] gives u the ID of candidate
@@ -238,7 +241,6 @@ contract NBA_MVP_Ballot {
         }
         
         emit voteEnded(winner);
-        return winner;
     }
     
     
