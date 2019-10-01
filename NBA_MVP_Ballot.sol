@@ -5,7 +5,7 @@
 /**
  * @file NBA_MVP_Ballot.sol
  * @author Mohammed Samsuddin <Mshmsudd@buffalo.edu>
- *         Taktuk Taktuk      <>
+ * @author Taktuk Taktuk      <taktukta@buffalo.edu>
  * @date created 22nd Sept 2019
  * @date last modified 29th Sept 2019
  */
