@@ -1,10 +1,13 @@
 
 
+
+
 /**
  * @file NBA_MVP_Ballot.sol
  * @author Mohammed Samsuddin <Mshmsudd@buffalo.edu>
+ *         Taktuk Taktuk      <>
  * @date created 22nd Sept 2019
- * @date last modified 26th Sept 2019
+ * @date last modified 29th Sept 2019
  */
 
 pragma solidity >=0.4.22 <0.6.0;
@@ -12,146 +15,234 @@ pragma solidity >=0.4.22 <0.6.0;
 contract NBA_MVP_Ballot {
     
 
-    // A vote comprises 2 parts, the wallet address of the voter, and the choice he makes. 
-    // struct vote {
-    //     address voterAddress;
-        
-    // }
+// -------------------------------------------------------------- Data and Attributes ----------------------------------------------------------------------------------------
     
     
-    // A voter has 2 attributes, his name, and whether or not he has voted.
+    // A voter has 3 attributes, his address
+    // boolean variable hasVoted
+    // And boolean variable isRegistered
     struct voter{
-        address voter;
+        address voterAddress;
         bool hasVoted;
         bool isRegistered;
-        
+
     }
     
-        struct preference{ 
-        uint playerIdOne;  //player ID of first preference in voter's CHOICE 
-        uint playerIdTwo;
-        uint playerIdThree;
-        uint playerIdFour;
-        uint playerIdFive;
-    }
-    
-    
-            struct Player{
-            uint playerId;
-            uint points;                                             // can we update this along the way?
-            bool qualifiedCandidate;
+
+    // a player have 3 attributes
+    // an integer variable player ID 
+    // an integer variable points
+    // an boolean variable isRegistered
+    struct Player{
+        uint playerId;
+        uint points;            // can we update this along the way?
+        bool isRegistered;
                 
     }
     
+    Player[5] player;   // only 5 players are allowed to participate in the election
+    uint public candidateNumber = 0 ;   // to keep track of how many candidates there are
+    uint public voterNumber = 0 ;   // to keep track of how many voter there are
+    uint public totalVote = 0; // total number of vote
     
+    // The ballot official name, wallet address and proposal are kept as public variables for everyone to see. 
+    address public ballotOfficialAddress; 
     
-    //Player(55 , 0 )
-    // voter 
-    
-        Player[5] player;
-        uint iter =0;
+    uint iter= 0;      //         
+
     // candidate are stored in a mapping called candidateRegister
-    // mapping(string => vote) public candidateRegister;
-    uint candidateNumber = 0 ;
-    mapping(uint => Player)candidateRegister;
+    mapping(uint => Player) candidateRegister;  
+    
+    // voter are stored in a mapping called voterRegister.
+    // voterRegister is public so anyone can check who are the eligible voters.
+    // One may ask why I wouldn't store my voters in arrays.
+    // The challenge with using arrays in an Ethereum blockchain is that you are likely to start running out of gas while trying to traverse the records of a considerably sized array.
     mapping(address => voter) voterRegister;
-    mapping(address => preference) votePreference;
+    
+    mapping(address => uint) votePreference;  // for preference.
+    
+    mapping(uint => uint) candidatePoints;  // i = 0... 4     =>   playerID1 , playerID2, playerID3 ,... playerID5
     
     
-// now say we have 0x9Dd preference 55 11 22 44 10  .. we can match those playerId and increment points based on who placed what 
+    // The ballot contract goes through 3 states.
+    // When the chairman creates it, it is in the state of "Created".
+    // Once he indicates that voting starts, the ballot contract turns to the state of "Voting".
+    // When counting starts, the goes into the state of "Ended". 
+    enum State { Created, Voting, Ended }
+	State public state;
 
-function registerCandidate(uint _playerId) public returns (uint) {
-    if()
-        candidateRegister[_playerId] = Player(_playerId, 0, true) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
-        candidateNumber += 1;  // now that we have a candidate registered , we can increase the counter
-        player[iter] = candidateRegister[_playerId];
-        iter++;
-        return _playerId;
-}
-      
-      
-function registerVoter(address _voterAddress) public {
-    //  registerVoter[_voterAddress] = voter(_voterAddress,false);
-    //  v = voter(_voterAddress , false, true );
-    voterRegister[_voterAddress] = voter(_voterAddress, false,true);
+
+// -------------------------------------------------------------- Modifiers ----------------------------------------------------------------------------------------
+
+    // The onlyOfficial() modifier
+    // calling this function is the same address as what is saved in ballotOfficialAddress.
+    // This ensures that only the oficial himself is allowed to call the function.
+    // In the event that the official denies ever starting the ballot, this will serve as evidence that it was really him, unless someone stole his wallet and private key.
+	modifier onlyOfficial() {
+		require(msg.sender == ballotOfficialAddress);
+		_;
+	}
+
+    // The modifier for inState is declared from lines 89 to 94.
+    // It checks to ensure that the contract is currently in the state provided as variable to the inState() modifier.
+	modifier inState(State _state) {
+		require(state == _state);
+		_;
+	}
+
+
+// -------------------------------------------------------------- Events ----------------------------------------------------------------------------------------
+
+    // event
+    event voterAdded(address voter);
+    event candidateAdded(uint _candidateID);
+    event voteStarted();
+    event voteEnded(uint finalResult);
+    event voteDone(address voter);
+
+
+
+// -------------------------------------------------------------- Functions ----------------------------------------------------------------------------------------
+
+
+
+    // Creates a new ballot contract.
+	// The official initializes the contract with the constructor by providing his _ballotOfficialName and _proposal.
+	// The constructor reads his wallet address and update the ballotOfficialAddress.
+	// This is important because folks who might wonder if this is a legitimate ballot can compare what they know is the chairman's wallet address to what is saved here.
+	// At this point, the state of the contract is "Created"
+	constructor() public {
+	    
+        ballotOfficialAddress = msg.sender;
+        state = State.Created;
     }
-    /*
-1st place - 10 points
-2nd place - 7 points
-3rd place - 5 points
-4th place - 3 points
-5th place - 1 point
 
-*/
 
-// user will enter playerId of their top preferences
-
-function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public {
-    if(voterRegister[_voterAddress].isRegistered && !(voterRegister[_voterAddress].hasVoted)) {  // verifying that voter is registered
-     candidateRegister[pref1].points += 10;                                                     // also that the user hasn't already voted!
-     candidateRegister[pref2].points += 7;
-     candidateRegister[pref3].points += 5;
-     candidateRegister[pref4].points += 3;
-     candidateRegister[pref5].points += 1;
-    voterRegister[_voterAddress].hasVoted = true;
-                                                           //vote!  update players points accordingly
+    // to register such voter, we will locate their voter object and make their instance variable isRegistered to true
+    function registerVoter(address _voterAddress) public inState(State.Created) onlyOfficial {
+        voter memory v;
+        v.voterAddress = _voterAddress;
+        v.hasVoted = false;
+        v.isRegistered = true;
+        voterRegister[_voterAddress] = v;  //voter ( voterId , hasVoted , isRegistered)
+        voterNumber++;
+        emit voterAdded(_voterAddress);
+        
     }
-}
     
     
-/*
-
-This is a warning not an error. You can ignore it and nothing bad will happen.
-
-However, it is helpfully telling you that since your function doesn't change 
-the state, you can mark it as view. See this answer for what that means and why it's a good idea:
-source: https://ethereum.stackexchange.com/questions/39561/solidity-function-state-mutability-warning?noredirect=1&lq=1
-
-so it will be fixed if we implement it to our main ballot.sol
-*/
-function tallyPoints (uint _playerId) public view returns(uint _points){
-  if(candidateRegister[_playerId].qualifiedCandidate){
-  _points = candidateRegister[_playerId].points;
-  }
- return _points;
-    // candidateRegister[_playerId].playerId;
-}
-
-
-  function winningProposal() public view returns (uint _winningProposal) {
-        uint winningVoteCount = 0;
     
-        for (uint prop = 0; prop < player.length; prop++)
-            if (player[prop].points > winningVoteCount) {
-                winningVoteCount = player[prop].points;
-                _winningProposal = player[prop].playerId;
+    //candidate means the Player that will be contending for MVP 
+    // this function will take in the playerID of candidate and register them accordingdly
+    function registerCandidate(uint _playerId) public inState(State.Created) onlyOfficial returns (uint) {
+        
+        if (candidateNumber > 5) {
+             return candidateNumber;
+        } else if (candidateNumber <= 5) {
+            candidateRegister[_playerId] = Player(_playerId, 0, true) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
+            candidateNumber++;  // now that we have a candidate registered , we can increase the counter
+            candidatePoints[iter] = _playerId;  // pair each number 0...4 with playerID 
+            iter++;
+            return _playerId;
+        }
+        emit candidateAdded(_playerId);
+    }
+
+
+    // to unregister such candidate, we will locate their Player object and make their instance variable isRegistered to false
+    function unRegisterCandidate(uint _playerId) public inState(State.Created) onlyOfficial returns (uint) {
+        //candidateRegister[_playerId] = Player(_playerId, 0, false) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
+        //candidateNumber--;
+            
+            
+        for (uint i = 0; i <= candidateNumber; i++){
+            if(candidateRegister[i].playerId == _playerId){
+                player[i] = Player(0,0,false);  // if player exists in player array.. remove it somehow
+                candidateNumber--;
             }
-          
+        }
+           
+        return candidateNumber; 
+    }
+
+    // to unregister such voter, we will locate their voter object and make their instance variable isRegistered to false
+    function unRegisterVoter(address _voterAddress) public inState(State.Created) onlyOfficial {
+        voterRegister[_voterAddress] = voter(_voterAddress, false,false);   // hasVoted == false
+    }
+
+
+                            /*
+                                1st place - 10 points
+                                2nd place - 7 points
+                                3rd place - 5 points
+                                4th place - 3 points
+                                5th place - 1 point
+                                
+                            */
+                                
+                                
+                                
+    // declare voting starts now
+    function startVoting() public inState(State.Created) onlyOfficial {
+        state = State.Voting;     
+        emit voteStarted();
     }
     
-//  verify that the voter is registered, and if so then record their preference
 
+    // user will enter playerId of their top preferences
+    // the candidates will have their points updated accoridng to the voter's preferences
+    function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public {
+        
+        if(voterRegister[_voterAddress].isRegistered && !(voterRegister[_voterAddress].hasVoted)) {  // verifying that voter is registered
+            candidateRegister[pref1].points += 10;                                                     // also that the user hasn't already voted!
+            candidateRegister[pref2].points += 7;
+            candidateRegister[pref3].points += 5;
+            candidateRegister[pref4].points += 3;
+            candidateRegister[pref5].points += 1;
+            voterRegister[_voterAddress].hasVoted = true;
+            totalVote++;
+                                                               //vote!  update players points accordingly
+        }
+    
+        emit voteDone(msg.sender);
+    }
+    
+    
+    
+    // End the voting
+    function endVoting() public inState(State.Voting) onlyOfficial {
+        state = State.Ended;
 
+    }
     
     
-
+    // this is used to collect all the points. We do so by accessing the playerID of the hashmap to get value -> points
+    function tallyPoints (uint _playerId) public view inState(State.Ended) returns (uint){
+      uint _points = candidateRegister[_playerId].points;
+      return _points;
+    }
     
     
-    // add voter
-    // Next, the official add voters to the voterRegister mapping.
-    // This involves entering the voter's wallet address and his name into the mapping.
-    // Line 104 states that this function is only executable when the contract is in the state of "Created",
-    // so that no one, not even the chairman is allowed to add new voters once voting has begun.
-    // Lines 104 says onlyOfficial, which means that only the official himself is allowed to run this function. You wouldn't want the voter to be able to add himself to the voterRegister!
-    // function addVoter(address _voterAddress, string memory _voterName) public inState(State.Created) onlyOfficial {
-    //     voter memory v;
-    //     v.voterName = _voterName;
-    //     v.voted = false;
-    //     voterRegister[_voterAddress] = v;
-    //     totalVoter++;
-    //     emit voterAdded(_voterAddress);
-    // }
+    // Return the Winner
+    function winningProposal() public inState(State.Ended) returns (uint) {
+        
+        uint256 mostPoints = 0;
+        uint winner ; // playerID of player with most points 
+        
+        for (uint i = 0; i < candidateNumber; i++){
+            if (candidateRegister[candidatePoints[i]].points > mostPoints) { // candidate[i] gives u the ID of candidate
+                mostPoints = candidateRegister[candidatePoints[i]].points ; // each int .. from 0 to 4 is paired with                                                                  
+                winner = candidatePoints[i];
+          
+            }
+        }
+        
+        emit voteEnded(winner);
+        return winner;
+    }
     
-  
-
-}
+    
+    
+    
+    
+}   // END OF NBA_MVP_Ballot
