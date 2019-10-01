@@ -107,7 +107,6 @@ function tallyPoints (uint _playerId) public view returns(uint _points){
  return _points;
 }
 
-//this function is not working yet
   function winningProposal() public view returns (uint) {
         uint256 mostPoints = 0;
         uint winner ; // playerID of player with most points 
