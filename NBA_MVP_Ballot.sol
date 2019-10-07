@@ -1,8 +1,9 @@
 
 
+
 /**
  * @file NBA_MVP_Ballot.sol
- * @author Mohammed Samsuddin <Mshmsudd@buffalo.edu>
+ * @author Mohammed Samsuddin <mshmsudd@buffalo.edu>
  * @author Taktuk Taktuk      <taktukta@buffalo.edu>
  * @date created 22nd Sept 2019
  * @date last modified 29th Sept 2019
@@ -141,7 +142,7 @@ contract NBA_MVP_Ballot {
         
         if (candidateNumber > 5) {
              return candidateNumber;
-        } else if (candidateNumber <= 5) {
+        } else if (candidateNumber < 5) {
             candidateRegister[_playerId] = Player(_playerId, 0, true) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
             candidateNumber++;  // now that we have a candidate registered , we can increase the counter
             candidatePoints[iter] = _playerId;  // pair each number 0...4 with playerID 
@@ -194,7 +195,7 @@ contract NBA_MVP_Ballot {
 
     // user will enter playerId of their top preferences
     // the candidates will have their points updated accoridng to the voter's preferences
-    function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public {
+    function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public inState(State.Voting) {
         
         if(voterRegister[_voterAddress].isRegistered && !(voterRegister[_voterAddress].hasVoted)) {  // verifying that voter is registered
             candidateRegister[pref1].points += 10;                                                     // also that the user hasn't already voted!
