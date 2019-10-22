@@ -11,6 +11,26 @@ head ,body , #players {
 
 }
 
+
+input[type=text] , input[type=submit] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 10px;
+}
+label{
+  font-size: 20px;
+  font-family: fantasy;
+}
+
+input[type=submit]:hover {
+  background-color: #009900;
+}
+
 #address{
   font-size: 40px;
 }

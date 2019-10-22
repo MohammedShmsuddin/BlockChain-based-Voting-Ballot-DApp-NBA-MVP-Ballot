@@ -56,6 +56,9 @@
       <select id="enter_address" value=""></select>
     </div>
   </div>
+
+
+
   <button class="btn btn-success" type="button" id="win-count" style="float:right; margin-top: 120px;">Declare Winner</button>
     <br>
 <div class="row" id="register_div">
@@ -65,6 +68,43 @@
 
 </div>
 </div>
+
+<div class ="container">
+
+
+      <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#demo">Start Voting</button>
+      <div id="demo" class="collapse">
+
+        <form>
+
+          <label for="voterAddress"> Voter Address</label>
+              <input type="text" id="voterAddress" name="voterAddress" placeholder="Voter Address">
+
+              <label for="firstPref">Top 1 Pick</label>
+                  <input type="text" id="firstPref" name="firstPref" placeholder="First Place Vote">
+
+                  <label for="firstPref">Top 2 Pick</label>
+                      <input type="text" id="secondPref" name="secondPref" placeholder="Second Place Vote">
+
+                      <label for="firstPref">Top 3 Pick</label>
+                          <input type="text" id="thirdPref" name="thirdPref" placeholder="Third Place Vote">
+
+                          <label for="firstPref">Top 4 Pick</label>
+                              <input type="text" id="fourthPref" name="fourthPref" placeholder="Fourth Place Vote">
+
+                              <label for="firstPref">Top 5 Pick</label>
+                                  <input type="text" id="fifthPref" name="fifthPref" placeholder="Fifth Place Vote">
+
+          <input type="submit" name ="submitVote">
+
+        </form>
+
+      </div>
+
+
+</div>
+
+
 
 <!-- <div class = "jumbotron" id = "players"> -->
 
