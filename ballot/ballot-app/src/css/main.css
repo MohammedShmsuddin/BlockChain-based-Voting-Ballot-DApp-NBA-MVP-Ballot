@@ -1,58 +1,26 @@
-
-
-/* id ->  #
-class -> .  */
-head ,body , #players {
-  padding: 50px;
-  font: 50px "Lucida Grande", Helvetica, Arial, sans-serif ;
-  background-color: coral;
-  color: white;
-
-
+#loader {
+	height: 40px;
+    display:none;
 }
 
-
-input[type=text] , input[type=submit] {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 10px;
-}
-label{
-  font-size: 20px;
-  font-family: fantasy;
+#loaderStartVote {
+	height: 40px;
+    display:none;
 }
 
-input[type=submit]:hover {
-  background-color: #009900;
+#loaderChoice{
+	height: 40px;
+    display:none;
 }
 
-#address{
-  font-size: 40px;
+#loaderNewVoter {
+	height: 40px;
+    display:none;
 }
 
- #enter_address{
-   font-size: 35px;
- }
-
-#main-container{
-  margin-top: 50px;
-}
-
-
-figcaption{
-  font-size: 30px;
-
-}
-
-#gifs-rows img {
-  cursor: pointer;
-
-}
-#gifs-rows .gif-file {
-  display:none;
+.custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
 }
