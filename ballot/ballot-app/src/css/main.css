@@ -18,6 +18,12 @@
     display:none;
 }
 
+
+#loaderNewCandidate {
+	height: 40px;
+    display:none;
+}
+
 .custom-file-upload {
     border: 1px solid #ccc;
     display: inline-block;
