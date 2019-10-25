@@ -18,13 +18,17 @@ input[type=submit]:hover {
 }
 
 
+#address-span{
+  font-size: 20px;
+}
 
+select{
+
+}
 
 #main-container{
   margin-top: 50px;
 }
-
-
 
 
 .column {

@@ -1,4 +1,4 @@
-App = {
+kApp = {
   web3Provider: null,
   contracts: {},
   url: 'http://127.0.0.1:7545',
