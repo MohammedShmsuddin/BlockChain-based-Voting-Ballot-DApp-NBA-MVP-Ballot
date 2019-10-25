@@ -12,7 +12,8 @@ kApp = {
      return App.initWeb3();
    },
   
-  
+  //https://web3js.readthedocs.io/en/v2.0.0-alpha/web3-eth-contract.html#contract-call
+  //web3 allows our client side to talk to blockchain/ropstein
    initWeb3: function() {
         // Is there is an injected web3 instance?
     if (typeof web3 !== 'undefined') {
@@ -25,7 +26,7 @@ kApp = {
 
     ethereum.enable();
 
-    App.populateAddress();
+    // App.populateAddress();
     return App.initContract();
   },
 
@@ -33,12 +34,12 @@ kApp = {
       $.getJSON('NBA_MVP_Ballot.json', function(data) {
     // Get the necessary contract artifact file and instantiate it with truffle-contract
     var voteArtifact = data;
-    App.contracts.vote = TruffleContract(voteArtifact);
+    App.contracts.votePlayer = TruffleContract(voteArtifact);
 
     // Set the provider for our contract
-    App.contracts.vote.setProvider(App.web3Provider);
+    App.contracts.votePlayer.setProvider(App.web3Provider);
 
-    App.getChairperson();
+    // App.getChairperson();
     return App.bindEvents();
   });
   },
@@ -47,7 +48,7 @@ kApp = {
   bindEvents: function() {    // none of these functions are working at the moments
     $(document).on('click', '.btn-vote', App.markVoted(chairperson,currentAccount));
     $(document).on('click', '.btn-winner', App.handleWinner);
-    $(document).on('click', '.btn-register', function(){ var ad = $('#enter_address').val(); App.handleRegister(ad); });
+    $(document).on('click', '.btn-register', function(){ var ad = $('.input-address').val(); App.handleRegister(ad); });
   },
 
 
@@ -56,7 +57,24 @@ kApp = {
   
    getChairperson : function(){ },        //most important
   
-   handleRegister: function(addr){ },
+   handleRegister: function(addr){    // addr = input voter address..
+
+    var voteInstance;
+    App.contracts.votePlayer.registerVoter(addr).deployed().then(function(instance) {   //what is instance??
+      voteInstance = instance;      
+      return voteInstance.register(addr);
+    }).then(function(result, err){
+        if(result){
+            if(parseInt(result.receipt.status) == 1)
+            alert(addr + " registration done successfully")
+            else
+            alert(addr + " registration not done successfully due to revert")
+        } else {
+            alert(addr + " registration failed")
+        }
+    });
+
+    },
   
    handleVote: function(event){ },
   
