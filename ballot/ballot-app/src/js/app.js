@@ -1,4 +1,4 @@
-kApp = {
+App = {
   web3Provider: null,
   contracts: {},
   url: 'http://127.0.0.1:7545',
@@ -39,14 +39,14 @@ kApp = {
     // Set the provider for our contract
     App.contracts.votePlayer.setProvider(App.web3Provider);
 
-    // App.getChairperson();
+    App.getChairperson();
     return App.bindEvents();
   });
   },
 
 
   bindEvents: function() {    // none of these functions are working at the moments
-    $(document).on('click', '.btn-vote', App.markVoted(chairperson,currentAccount));
+    // $(document).on('click', '.btn-vote', App.markVoted(chairperson,currentAccount));
     $(document).on('click', '.btn-winner', App.handleWinner);
     $(document).on('click', '.btn-register', function(){ var ad = $('.input-address').val(); App.handleRegister(ad); });
   },
@@ -55,14 +55,32 @@ kApp = {
 
    populateAddress : function(){ },   //second most
   
-   getChairperson : function(){ },        //most important
+
+
+getChairperson : function(){
+    App.contracts.votePlayer.deployed().then(function(instance) {
+      return instance;
+    }).then(function(result) {
+      App.chairPerson = result.constructor.currentProvider.selectedAddress.toString();
+      App.currentAccount = web3.eth.coinbase;
+      //Returns the coinbase address to which mining rewards will go.
+      if(App.chairPerson != App.currentAccount){
+      console.log('not the chairperson')
+      }else{
+        // jQuery('#address_div').css('display','block');
+        // jQuery('#register_div').css('display','block');
+        cosole.log('it worked!!!!!!!!!!!!!!!!')
+      }
+    })
+  },
+
   
    handleRegister: function(addr){    // addr = input voter address..
 
     var voteInstance;
-    App.contracts.votePlayer.registerVoter(addr).deployed().then(function(instance) {   //what is instance??
+    App.contracts.votePlayer.registerVoter(addr).deployed().then(function(instance) {   
       voteInstance = instance;      
-      return voteInstance.register(addr);
+      return voteInstance.registerVoter(addr);
     }).then(function(result, err){
         if(result){
             if(parseInt(result.receipt.status) == 1)
@@ -80,34 +98,29 @@ kApp = {
   
    handleWinner : function(){ } ,
 
-    markVoted: function(voters , account){            //https://www.trufflesuite.com/tutorials/pet-shop
+//     markVoted: function(voters , account){            //https://www.trufflesuite.com/tutorials/pet-shop
 
-var voteInstance;
+// var voteInstance;
 
-App.contracts.vote.deployed().then(function(instance) {  // instance : json 
+// App.contracts.votePlayer.deployed().then(function(instance) {  // instance : json 
 
-  voteInstance = instance;
+//   voteInstance = instance;
 
-  return voteInstance.getChairperson.call();  // call to getChairPerson , if vote pressed, disable it
-}).then(function(voters) {
-  for (i = 0; i < voters.length; i++) {
-    if (voters[i] !== '0x0000000000000000000000000000000000000000') {
-      $('btn-vote').find('button').text('Success').attr('disabled', true);
-    }
-  }
-}).catch(function(err) {
-  console.log(err.message);
-});
-
-
-};  // end bindEvents
+//   return voteInstance.getChairperson.call();  // call to getChairPerson , if vote pressed, disable it
+// }).then(function(voters) {
+//   for (i = 0; i < voters.length; i++) {
+//     if (voters[i] !== '0x0000000000000000000000000000000000000000') {
+//       $('playerButton').find('button').text('Success').attr('disabled', true);
+//     }
+//   }
+// }).catch(function(err) {
+//   console.log(err.message);
+// });
 
 
+};  // end App
 
-  
 
-
-};      //endApp
 
   
 
