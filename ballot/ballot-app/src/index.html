@@ -24,7 +24,7 @@
 
         <h1>NBA Ballot Manager</h1>
 
-    	<div class="panel panel-default">
+    	<div class="panel panel-default" id="panels_new_Ballot">
         	<div class="panel-heading">New Ballot Contract</div>
         	<div class="panel-body">  
         	    <div class="row">
@@ -34,19 +34,11 @@
                 			<input id="official" class="form-control" type="text" >
                     	</div>
                     </div>
-                    <div class="col-md-6">                    
-                    	<div class="form-group">
-                			<label for="proposal">Contract Proposal</label>
-                			<input id="proposal" class="form-control" type="text" >
-                    	</div>
-                    </div>
                 </div>
             	<div class="form-group">
                 	<input id="btnGo" class="btn btn-primary" type="button" value="Validate" />
-                	<img id="loader" src="https://loading.io/spinners/reload/index.ajax-syncing-loading-icon.svg">
+                	
             	</div>
-
-
         	</div>
     	</div>
         
@@ -69,13 +61,11 @@
                              <div class="col-md-6" align="right">
                 	            <input id="btnStart" class="btn btn-primary" type="button" value="Start Voting" />
                 	            <input id="btnEnd" class="btn btn-primary" type="button" value="End Voting" />
-                	            <img id="loaderStartVote" src="https://loading.io/spinners/reload/index.ajax-syncing-loading-icon.svg">
-                            </div>
+                	             </div>
                         </div>
                          
-                        <div id="lbl_address"></div>
-                		<div id="lbl_proposal"></div>
-                		<div id="lbl_state"></div>
+                        <div id="lbl_address">Official Address: </div>
+                		<div id="lbl_state">State: </div>
                 	</div>
             	</div>    
             </div>
@@ -85,8 +75,10 @@
                 <div class="panel panel-default">
                 	<div class="panel-heading">Vote Details</div>
                 	<div class="panel-body"> 
-                		<div id="lbl_voters_num"></div>
-                		<div id="lbl_votes_num"></div>
+						<div id="lbl_voters_num">Number Of Voters: </div>
+						<div id="lbl_candidates_num">Number Of Candidates: </div>
+						<div id="lbl_votes_num">Total Votes: </div>
+						<div id="lbl_winner">Winner: </div>
                 	</div>
             	</div> 
             </div>
@@ -113,20 +105,18 @@
                             <div class="col-md-6">
                             	<div class="form-group">
                         			<label for="txtNewVoterAddress">Voter Wallet Address</label>
-                        			<input id="txtNewVoterAddress" class="form-control" type="text">
-                            	</div>
-                            </div>
-                            <div class="col-md-6">                    
-                            	<div class="form-group">
-                        			<label for="txtNewVoterName">Voter Name</label>
-                        			<input id="txtNewVoterName" class="form-control" type="text">
+									<div class="row" id="address_div">
+										<div style="margin-left: 15px;margin-top: 10px;">
+										  <span> Address : </span>
+										  <select id="enter_address" value=""></select>
+										</div>
+									  </div>
                             	</div>
                             </div>
                         </div>
 
                         <div class="form-group">
                         	<input id="btnAdd1" class="btn btn-primary" type="button" value="Add" />
-                        	<img id="loaderNewVoter" src="https://loading.io/spinners/reload/index.ajax-syncing-loading-icon.svg">
                         </div>
                     </div>
 
@@ -155,21 +145,20 @@
                             <div class="col-md-6">
                             	<div class="form-group">
                         			<label for="txtNewVoterAddress">Candidate Name</label>
-                        			<input id="txtNewVoterAddress" class="form-control" type="text">
+                        			<input id="candidateName" class="form-control" type="text">
                             	</div>
                             </div>
                             <div class="col-md-6">                    
                             	<div class="form-group">
                         			<label for="txtNewVoterName">Candidate ID</label>
-                        			<input id="txtNewVoterName" class="form-control" type="text">
+                        			<input id="candidateID" class="form-control" type="text">
                             	</div>
                             </div>
                         </div>
 
                         <div class="form-group">
                         	<input id="btnAdd2" class="btn btn-primary" type="button" value="Add" />
-                        	<img id="loaderNewCandidate" src="https://loading.io/spinners/reload/index.ajax-syncing-loading-icon.svg">
-                        </div>
+                         </div>
                     </div>
 
                     <div id="section_listCandidate">
@@ -182,11 +171,45 @@
         			</div>
 
         	</div>
-    	</div>
+		</div>
+		
+
+		<div class="panel panel-default">
+			<div class="panel-heading">Vote</div>
+			<div class="panel-body">  
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group">
+							<label for="official">Voter Wallet Address</label>
+							<input id="voterAddress" class="form-control" type="text" >
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<input id="vote" class="btn btn-primary" type="button" value="Vote" />
+					
+			</div>
+		</div>
+	
+			
+
+
     	
-    </div>
+	</div>
+	
 
 
+
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/dist/bootstrap.min.js"></script>
+<script src="js/dist/web3.min.js"></script>
+<script src="js/dist/truffle-contract.js"></script>
+<script src="js/app.js"></script>
 
 
 
