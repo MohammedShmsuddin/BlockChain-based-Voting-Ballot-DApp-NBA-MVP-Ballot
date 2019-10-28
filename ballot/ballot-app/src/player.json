@@ -1,0 +1,27 @@
+[
+    {
+      "id": 0,
+      "name": "Lebron James",
+    },
+
+    {
+        "id": 1,
+        "name": "Stephen Curry",
+      },
+
+      {
+        "id": 2,
+        "name": "Kobi Bryon",
+      },
+
+      {
+        "id": 3,
+        "name": "Kevin Durant",
+      },
+
+      {
+        "id": 4,
+        "name": "Micheal Jordan",
+      },
+
+]
