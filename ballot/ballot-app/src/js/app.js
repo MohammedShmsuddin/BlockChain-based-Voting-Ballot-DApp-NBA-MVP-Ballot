@@ -64,8 +64,8 @@
     $(document).on('click', '#btn-vote', App.markVoted(chairperson,currentAccount));
     $(document).on('click', '#btn-winner', App.winningProposal);
     $(document).on('click', '#btnAdd1', function(){ var ad = $('#enter_address').val(); App.addVoter(ad); });
-    $(document).on('click', '#btnAdd2', function(){ var name = $('#candidateName').val(); var id = $('#candidateID').val(); App.addCandidate(name, id); });
-    $(document).on('click', '#vote', function(){ var ad = $('#voterAddress').val(); App.handleVote(ad); });
+    //$(document).on('click', '#btnAdd2', function(){ var name = $('#candidateName').val(); var id = $('#candidateID').val(); App.addCandidate(name, id); });
+    //$(document).on('click', '#vote', function(){ var ad = $('#voterAddress').val(); App.handleVote(ad); });
     $(document).on('click', '#btnStart', App.startVote);
     $(document).on('click', '#btnEnd', App.endVote);
     
@@ -121,18 +121,18 @@
      * @param {*} name 
      * @param {*} id 
      */
-   addCandidate : function(name, id){
+   /*addCandidate : function(name, id){
 
 
 
-    },   
+    },  */ 
    
 
    /**
     * 
     * @param {*} event 
     */
-   startVote : function(event) {
+   startVote : function() {
 
     $('btnGo').find('button').attr('disabled', true);
     $('btnStart').find('button').attr('disabled', true);
@@ -142,7 +142,7 @@
    },
 
 
-   endVote : function(event) {
+   endVote : function() {
 
     $('vote').find('button').attr('disabled', true);
     $('btnEnd').find('button').attr('disabled', true);
@@ -150,11 +150,59 @@
    },
   
 
-   handleVote: function(ad, event){ },
-  
-   winningProposal : function(){ },
+   /**
+    * 
+    * @param {*} event 
+    */
+   handleVote: function(event) {
+    event.preventDefault();
+    var proposalId = parseInt($(event.target).data('id'));
+    var voteInstance;
 
-   tallyPoints : function() { },
+    web3.eth.getAccounts(function(error, accounts) {
+      var account = accounts[0];
+
+      App.contracts.vote.deployed().then(function(instance) {
+        voteInstance = instance;
+
+        return voteInstance.vote(proposalId, {from: account});
+      }).then(function(result, err){
+            if(result){
+                console.log(result.receipt.status);
+                if(parseInt(result.receipt.status) == 1)
+                alert(account + " voting done successfully")
+                else
+                alert(account + " voting not done successfully due to revert")
+            } else {
+                alert(account + " voting failed")
+            }   
+        });
+    });
+  },
+
+
+
+  /**
+   * 
+   */
+  handleWinner : function() {
+    console.log("To get winner");
+    var voteInstance;
+    App.contracts.vote.deployed().then(function(instance) {
+      voteInstance = instance;
+      return voteInstance.reqWinner();
+    }).then(function(res){
+    console.log(res);
+      alert(App.names[res] + "  is the winner ! :)");
+    }).catch(function(err){
+      console.log(err.message);
+    })
+  },
+
+  
+   //winningProposal : function(){ },
+
+   //tallyPoints : function() { },
 
 
 
@@ -164,7 +212,7 @@
     * @param {*} voters 
     * @param {*} account 
     */
-   markVoted: function(voters , account){            //https://www.trufflesuite.com/tutorials/pet-shop
+   /*markVoted : function(voters , account) {            //https://www.trufflesuite.com/tutorials/pet-shop
 
     var voteInstance;
     App.contracts.vote.deployed().then(function(instance) {  // instance : json 
@@ -182,7 +230,7 @@
         console.log(err.message);
 
       });
-   },
+   },*/
 
 
 
@@ -199,13 +247,8 @@
         }
       });
     });
-  },
-
-
-
-
-
-
+  
+  }
 
 
 
