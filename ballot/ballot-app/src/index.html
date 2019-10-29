@@ -5,14 +5,16 @@
     <meta charset="utf-8" />
     <script>(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,"script","https://www.google-analytics.com/analytics.js","ga");ga("create", "UA-105319773-1", {"cookieDomain":"auto"});ga("set", "anonymizeIp", true);ga("send", "pageview");</script>
     <title>NBA Ballot Manager</title>
-    <link rel="stylesheet" type="text/css" href="main.css">
-	<link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap.min.css">
-	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.js"></script>
-	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
-	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap.min.js"></script>
-</head>
+<!--     <link rel="stylesheet" type="text/css" href="main.css">
+ -->	<link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+ <!-- 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap.min.css">
+	
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script> -->
+	<!-- <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.js"></script> -->
+<!-- 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
+ -->	
+<!--  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap.min.js"></script>
+ --></head>
 
 
 
@@ -182,10 +184,22 @@
 						<div class="form-group">
 							<label for="official">Voter Wallet Address</label>
 							<input id="voterAddress" class="form-control" type="text" >
+                            <label for="fpick">First Pick</label>
+                            <input id="firstPick" class="form-control" type="text" >
+                             <label for="sPick">Second Pick</label>
+                            <input id="secondPick" class="form-control" type="text" >
+                             <label for="tpick">Third Pick</label>
+                            <input id="thirdPick" class="form-control" type="text" >
+                             <label for="fpick">Fourth Pick</label>
+                            <input id="fourthPick" class="form-control" type="text" >
+                             <label for="fpick">Fifth Pick</label>
+                            <input id="fifthPick" class="form-control" type="text" >  <!-- last pick -->
+
 						</div>
 					</div>
 				</div>
 				<div class="form-group">
+
 					<input id="vote" class="btn btn-primary" type="button" value="Vote" />
 					
 			</div>

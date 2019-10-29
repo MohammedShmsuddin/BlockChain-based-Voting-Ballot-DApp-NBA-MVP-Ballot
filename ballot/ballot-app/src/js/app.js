@@ -4,8 +4,6 @@
   contracts: {},
   player: new Array(),
   url: 'http://127.0.0.1:7545',
-
-
   chairPerson:null,
   currentAccount:null,
   
@@ -16,9 +14,12 @@
      return App.initWeb3();
    },
   
+  //https://web3js.readthedocs.io/en/v2.0.0-alpha/web3-eth-contract.html#contract-call
+  //web3 allows our client side to talk to blockchain/ropstein
   /**
    * 
    */
+
    initWeb3: function() {
         // Is there is an injected web3 instance?
     if (typeof web3 !== 'undefined') {
@@ -37,42 +38,103 @@
 
 
 
-  /**
-   * 
-   */
   initContract: function() {
       $.getJSON('NBA_MVP_Ballot.json', function(data) {
     // Get the necessary contract artifact file and instantiate it with truffle-contract
     var voteArtifact = data;
-    App.contracts.vote = TruffleContract(voteArtifact);
-
+    App.contracts.vote = TruffleContract(voteArtifact); //Uncaught ReferenceError: TruffleContract is not defined
+    
     // Set the provider for our contract
     App.contracts.vote.setProvider(App.web3Provider);
 
-    App.getChairperson();
-    return App.bindEvents();
+       App.getChairperson(); //initializes chairPerson and currentAccount
+
+        return App.bindEvents();
   });
+
   },
 
 
-
+  
 
   /**
    * 
    */
   bindEvents: function() {    // none of these functions are working at the moments
-    $(document).on('click', '#btn-vote', App.markVoted(chairperson,currentAccount));
+
+    // $(document).on('click', '#btn-vote', App.markVoted(chairPerson,currentAccount));
     $(document).on('click', '#btn-winner', App.winningProposal);
     $(document).on('click', '#btnAdd1', function(){ var ad = $('#enter_address').val(); App.addVoter(ad); });
+<<<<<<< HEAD
     //$(document).on('click', '#btnAdd2', function(){ var name = $('#candidateName').val(); var id = $('#candidateID').val(); App.addCandidate(name, id); });
     //$(document).on('click', '#vote', function(){ var ad = $('#voterAddress').val(); App.handleVote(ad); });
+=======
+    $(document).on('click', '#btnAdd2', function(){ var name = $('#candidateName').val(); var id = $('#candidateID').val(); App.addCandidate(id); });
+    $(document).on('click', '#vote', function(){ var ad = $('#voterAddress').val(); 
+      var first = $('#firstPick');
+      var second = $('#secondPick');
+      var third = $('#thirdPick');
+      var fourth= $('#fourthPick');
+      var fifth= $('#fifthPick');
+      App.handleVote(ad,first,second,third,fourth,fifth); });
+
+>>>>>>> 46edbb6c771534cbf89ae05a50c0ade3c6bb82fa
     $(document).on('click', '#btnStart', App.startVote);
     $(document).on('click', '#btnEnd', App.endVote);
-    
+      $(document).on('click', '#winCount', App.winner);
+
+    // $(document).on('click', '#btn-vote', App.markVoted(chairPerson,currentAccount));
+
+
 
   },
 
-  getChairperson : function(){
+
+
+
+  *
+   * 
+   // * @param {*} addr 
+
+      addVoter : function(){
+var voteInstance;
+        App.contracts.vote.deployed().then(function(instance) {
+          voteInstance = instance;
+          return voteInstance.winningProposal();
+ }).then(function(result, err){
+            if(result){
+                if(parseInt(result.receipt.status) == 1)
+                alert(addr + " registration done successfully")
+                else
+                alert(addr + " registration not done successfully due to revert")
+            } else {
+                alert(addr + " registration failed")
+            }   
+        });
+},
+
+
+   
+   addVoter : function(addr){
+
+        var voteInstance;
+        App.contracts.vote.deployed().then(function(instance) {
+          voteInstance = instance;
+          return voteInstance.registerVoter(addr);
+        }).then(function(result, err){
+            if(result){
+                if(parseInt(result.receipt.status) == 1)
+                alert(addr + " registration done successfully")
+                else
+                alert(addr + " registration not done successfully due to revert")
+            } else {
+                alert(addr + " registration failed")
+            }   
+        });
+
+    },   
+
+    getChairperson : function(){
     App.contracts.vote.deployed().then(function(instance) {
       return instance;
     }).then(function(result) {
@@ -90,22 +152,23 @@
     })
   },
 
+  
 
 
-  /**
-   * 
-   * @param {*} addr 
-   */
-   addVoter : function(addr){
-
-        var voteInstance;
+    /**
+     * 
+     * @param {*} name 
+     * @param {*} id 
+     */
+  addCandidate : function(id){  // need to id each candidate 0...4
+ var voteInstance;
         App.contracts.vote.deployed().then(function(instance) {
           voteInstance = instance;
-          return voteInstance.register(addr);
+          return voteInstance.registerCandidate(id);
         }).then(function(result, err){
             if(result){
                 if(parseInt(result.receipt.status) == 1)
-                alert(addr + " registration done successfully")
+                alert(addr + " candidate registration done successfully")
                 else
                 alert(addr + " registration not done successfully due to revert")
             } else {
@@ -113,6 +176,7 @@
             }   
         });
 
+<<<<<<< HEAD
     },   
   
 
@@ -124,6 +188,8 @@
    /*addCandidate : function(name, id){
 
 
+=======
+>>>>>>> 46edbb6c771534cbf89ae05a50c0ade3c6bb82fa
 
     },  */ 
    
@@ -134,10 +200,10 @@
     */
    startVote : function() {
 
-    $('btnGo').find('button').attr('disabled', true);
-    $('btnStart').find('button').attr('disabled', true);
-    $('btnAdd1').find('button').attr('disabled', true);
-    $('btnAdd2').find('button').attr('disabled', true);
+    $('btnGo').find('button').attr('disabled', true);  //Validate button
+    $('btnStart').find('button').attr('disabled', true);  //StartVoting button
+    $('btnAdd1').find('button').attr('disabled', true);  //Add Voter button
+    $('btnAdd2').find('button').attr('disabled', true);   // Add Candidate button
 
    },
 
@@ -148,8 +214,11 @@
     $('btnEnd').find('button').attr('disabled', true);
 
    },
-  
 
+  
+/*
+
+<<<<<<< HEAD
    /**
     * 
     * @param {*} event 
@@ -201,6 +270,24 @@
 
   
    //winningProposal : function(){ },
+=======
+    function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public inState(State.Voting) {
+
+*/
+   handleVote: function(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick){
+var voteInstance;
+        App.contracts.vote.deployed().then(function(instance) {
+          voteInstance = instance;
+          return voteInstance.votePlayer(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick);
+
+
+   });
+   },
+  
+   winningProposal : function(){
+
+    },
+>>>>>>> 46edbb6c771534cbf89ae05a50c0ade3c6bb82fa
 
    //tallyPoints : function() { },
 
@@ -211,26 +298,36 @@
     * 
     * @param {*} voters 
     * @param {*} account 
+
     */
+<<<<<<< HEAD
    /*markVoted : function(voters , account) {            //https://www.trufflesuite.com/tutorials/pet-shop
+=======
+   // markVoted: function(voters , account){            //https://www.trufflesuite.com/tutorials/pet-shop
+>>>>>>> 46edbb6c771534cbf89ae05a50c0ade3c6bb82fa
 
-    var voteInstance;
-    App.contracts.vote.deployed().then(function(instance) {  // instance : json 
+   //  var voteInstance;
+   //  App.contracts.vote.deployed().then(function(instance) {  // instance : json 
 
-      voteInstance = instance;
+   //    voteInstance = instance;
 
-      return voteInstance.getChairperson.call();  // call to getChairPerson , if vote pressed, disable it
-      }).then(function(voters) {
-        for (i = 0; i < voters.length; i++) {
-          if (voters[i] !== '0x0000000000000000000000000000000000000000') {
-            $('btn-vote').find('button').text('Success').attr('disabled', true);
-          }
-        }
-      }).catch(function(err) {
-        console.log(err.message);
+   //    return voteInstance.getChairperson.call();  // call to getChairPerson , if vote pressed, disable it
+   //    }).then(function(voters) {
+   //      for (i = 0; i < voters.length; i++) {
+   //        if (voters[i] !== '0x0000000000000000000000000000000000000000') {
+   //          $('btn-vote').find('button').text('Success').attr('disabled', true);
+   //        }
+   //      }
+   //    }).catch(function(err) {
+   //      console.log(err.message);
 
+<<<<<<< HEAD
       });
    },*/
+=======
+   //    });
+   // },
+>>>>>>> 46edbb6c771534cbf89ae05a50c0ade3c6bb82fa
 
 
 
