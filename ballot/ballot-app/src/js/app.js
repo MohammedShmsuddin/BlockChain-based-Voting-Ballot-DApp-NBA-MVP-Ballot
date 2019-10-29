@@ -64,44 +64,44 @@
 
     $(document).on('click', '#btnStart', App.startVote);
     $(document).on('click', '#btnEnd', App.endVote);
-      $(document).on('click', '#win-count', App.winner);
+    $(document).on('click', '#win-count', App.winner);
 
-    // $(document).on('click', '#btn-vote', App.markVoted(chairPerson,currentAccount));
     $(document).on('click', '#tally-button', function(){
-      var points = $('#tally-points'); 
+      var points = $('#tally-points').val(); 
       App.checkPoints(points);
     }); 
+
     $(document).on('click', '#btnAdd1', function(){ var ad = $('#enter_address').val(); App.addVoter(ad); });
-    $(document).on('click', '#btnAdd2', function(){ var name = $('#candidateName').val(); var id = $('#candidateID').val(); App.addCandidate(id); });
-    $(document).on('click', '#vote',  function(){ var ad = $('#voterAddress').val(); 
-      var first = $('#firstPick');
-      var second = $('#secondPick');
-      var third = $('#thirdPick');
-      var fourth= $('#fourthPick');
-      var fifth= $('#fifthPick');
+    $(document).on('click', '#btnAdd2', function(){ 
+      var name = $('#candidateName').val(); var id = $('#candidateID').val();  
+       App.addCandidate(id); 
+    });
+
+    $(document).on('click', '#vote',  function(){ 
+      var ad = $('#voterAddress').val(); 
+      var first = $('#firstPick').val();
+      var second = $('#secondPick').val();
+      var third = $('#thirdPick').val();
+      var fourth= $('#fourthPick').val();
+      var fifth= $('#fifthPick').val();
 
       App.handleVote(ad,first,second,third,fourth,fifth);
 
-
-    // $(document).on('click', '#btn-vote', App.markVoted(chairPerson,currentAccount));
   });
 
-       $(document).on('click', '#btnStart', App.startVote);
-    $(document).on('click', '#btnEnd', App.endVote);
-      $(document).on('click', '#win-count', App.winner);
   },
 
 // takes in playerID -> returns points
-//returns uint --> points
+//returns uint --> points                    not working 
 checkPoints : function(candidateID){
 var voteInstance;
         App.contracts.vote.deployed().then(function(instance) {
           voteInstance = instance;
-          return voteInstance.tallyPoints(candidateID);
+          return voteInstance.tallyPoints(candidateID);   // how can display this result??
  }).then(function(result, err){
             if(result){
                 if(parseInt(result.receipt.status) == 1)
-                alert(candidateID + " has " + result + " points")
+                alert(candidateID + " has  points")
                 else
                 alert(result + " not done successfully due to revert")
             } else {
@@ -180,14 +180,22 @@ var voteInstance;
           return voteInstance.registerCandidate(addr);
         }).then(function(result, err){
             if(result){
-                if(parseInt(result.receipt.status) == 1)
-                alert(addr + " candidate registration done successfully")
-                else
+                if(parseInt(result.receipt.status) == 1)    {
+              alert(addr + " candidate registration done successfully")
+               $('#candidate-list').append("<li>"+ addr +"</li>" );
+          }
+              else{
                 alert(addr + " registration not done successfully due to revert")
-            } else {
+         
+          }  
+        }
+
+
+           else {
                 alert(addr + " registration failed")
-            }   
-        });
+            }
+          });
+
 
 
     },   
