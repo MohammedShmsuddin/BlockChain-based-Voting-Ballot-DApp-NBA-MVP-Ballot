@@ -1,0 +1,22 @@
+[
+  {
+    "id": 0,
+    "name": "George",
+    "picture": "images/george.png"
+  },
+  {
+    "id": 1,
+    "name": "Harden",
+    "picture": "images/nba-logo.png"
+  },
+  {
+    "id": 2,
+    "name": "Antetokounmpo",
+    "picture": "images/giannis.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Curry",
+    "picture": "images/nba_mvp.jpeg"
+  }
+]
