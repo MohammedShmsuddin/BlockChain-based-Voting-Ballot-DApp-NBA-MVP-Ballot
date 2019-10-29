@@ -62,36 +62,57 @@
    */
   bindEvents: function() {    // none of these functions are working at the moments
 
+    $(document).on('click', '#btnStart', App.startVote);
+    $(document).on('click', '#btnEnd', App.endVote);
+      $(document).on('click', '#win-count', App.winner);
+
     // $(document).on('click', '#btn-vote', App.markVoted(chairPerson,currentAccount));
-    $(document).on('click', '#btn-winner', App.winningProposal);
+    $(document).on('click', '#tally-button', function(){
+      var points = $('#tally-points'); 
+      App.checkPoints(points);
+    }); 
     $(document).on('click', '#btnAdd1', function(){ var ad = $('#enter_address').val(); App.addVoter(ad); });
     $(document).on('click', '#btnAdd2', function(){ var name = $('#candidateName').val(); var id = $('#candidateID').val(); App.addCandidate(id); });
-    $(document).on('click', '#vote', function(){ var ad = $('#voterAddress').val(); 
+    $(document).on('click', '#vote',  function(){ var ad = $('#voterAddress').val(); 
       var first = $('#firstPick');
       var second = $('#secondPick');
       var third = $('#thirdPick');
       var fourth= $('#fourthPick');
       var fifth= $('#fifthPick');
-      App.handleVote(ad,first,second,third,fourth,fifth); });
 
-    $(document).on('click', '#btnStart', App.startVote);
-    $(document).on('click', '#btnEnd', App.endVote);
-      $(document).on('click', '#winCount', App.winner);
+      App.handleVote(ad,first,second,third,fourth,fifth);
+
 
     // $(document).on('click', '#btn-vote', App.markVoted(chairPerson,currentAccount));
+  });
 
-
-
+       $(document).on('click', '#btnStart', App.startVote);
+    $(document).on('click', '#btnEnd', App.endVote);
+      $(document).on('click', '#win-count', App.winner);
   },
 
+// takes in playerID -> returns points
+//returns uint --> points
+checkPoints : function(candidateID){
+var voteInstance;
+        App.contracts.vote.deployed().then(function(instance) {
+          voteInstance = instance;
+          return voteInstance.tallyPoints(candidateID);
+ }).then(function(result, err){
+            if(result){
+                if(parseInt(result.receipt.status) == 1)
+                alert(candidateID + " has " + result + " points")
+                else
+                alert(result + " not done successfully due to revert")
+            } else {
+                alert(result + "  failed")
+            }   
+        });
+},
 
-
-
-  *
-   * 
    // * @param {*} addr 
 
-      addVoter : function(){
+winner : function(){      //what does result output... how can get result from calling solidity function winningProposal..
 var voteInstance;
         App.contracts.vote.deployed().then(function(instance) {
           voteInstance = instance;
@@ -99,35 +120,14 @@ var voteInstance;
  }).then(function(result, err){
             if(result){
                 if(parseInt(result.receipt.status) == 1)
-                alert(addr + " registration done successfully")
+                alert(result + " has won!")
                 else
-                alert(addr + " registration not done successfully due to revert")
+                alert(result + " not done successfully due to revert")
             } else {
-                alert(addr + " registration failed")
+                alert(result + "  failed")
             }   
         });
 },
-
-
-   
-   addVoter : function(addr){
-
-        var voteInstance;
-        App.contracts.vote.deployed().then(function(instance) {
-          voteInstance = instance;
-          return voteInstance.registerVoter(addr);
-        }).then(function(result, err){
-            if(result){
-                if(parseInt(result.receipt.status) == 1)
-                alert(addr + " registration done successfully")
-                else
-                alert(addr + " registration not done successfully due to revert")
-            } else {
-                alert(addr + " registration failed")
-            }   
-        });
-
-    },   
 
     getChairperson : function(){
     App.contracts.vote.deployed().then(function(instance) {
@@ -149,17 +149,35 @@ var voteInstance;
 
   
 
+   addVoter : function(addr){
+
+        var voteInstance;
+        App.contracts.vote.deployed().then(function(instance) {
+          voteInstance = instance;
+          return voteInstance.registerVoter(addr);
+        }).then(function(result, err){
+            if(result){
+                if(parseInt(result.receipt.status) == 1)
+                alert(addr + " registration done successfully")
+                else
+                alert(addr + " registration not done successfully due to revert")
+            } else {
+                alert(addr + " registration failed")
+            }   
+        });
+
+    },   
 
     /**
      * 
-     * @param {*} name 
+     * our registerCandidate function maps uint 0...4 with the candidates ID we add.
      * @param {*} id 
      */
-  addCandidate : function(id){  // need to id each candidate 0...4
+  addCandidate : function(addr){  // need to id each candidate 0...4
  var voteInstance;
         App.contracts.vote.deployed().then(function(instance) {
           voteInstance = instance;
-          return voteInstance.registerCandidate(id);
+          return voteInstance.registerCandidate(addr);
         }).then(function(result, err){
             if(result){
                 if(parseInt(result.receipt.status) == 1)
@@ -173,7 +191,33 @@ var voteInstance;
 
 
     },   
+
+    /*
+
+    function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public inState(State.Voting) {
+
+*/
    
+handleVote: function(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick){   // can subsitute addr with person deploying current contract..
+var voteInstance;
+        App.contracts.vote.deployed().then(function(instance) {
+          voteInstance = instance;
+          return voteInstance.votePlayer(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick);
+   });
+   },
+  
+   
+
+   populateAddress : function(){
+    new Web3(new Web3.providers.HttpProvider(App.url)).eth.getAccounts((err, accounts) => {
+      jQuery.each(accounts,function(i){
+        if(web3.eth.coinbase != accounts[i]){
+          var optionElement = '<option value="'+accounts[i]+'">'+accounts[i]+'</option';
+          jQuery('#enter_address').append(optionElement);  
+        }
+      });
+    });
+  },
 
    /**
     * 
@@ -186,6 +230,12 @@ var voteInstance;
     $('btnAdd1').find('button').attr('disabled', true);  //Add Voter button
     $('btnAdd2').find('button').attr('disabled', true);   // Add Candidate button
 
+
+var voteInstance;
+        App.contracts.vote.deployed().then(function(instance) {
+          voteInstance = instance;
+          return voteInstance.startVoting();
+        });
    },
 
 
@@ -194,84 +244,13 @@ var voteInstance;
     $('vote').find('button').attr('disabled', true);
     $('btnEnd').find('button').attr('disabled', true);
 
-   },
-
-  
-/*
-
-    function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public inState(State.Voting) {
-
-*/
-   handleVote: function(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick){
-var voteInstance;
+    var voteInstance;
         App.contracts.vote.deployed().then(function(instance) {
           voteInstance = instance;
-          return voteInstance.votePlayer(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick);
+          return voteInstance.endVoting();
+        });
 
-
-   });
    },
-  
-   winningProposal : function(){
-
-    },
-
-   tallyPoints : function() { },
-
-
-
-
-   /**
-    * 
-    * @param {*} voters 
-    * @param {*} account 
-
-    */
-   // markVoted: function(voters , account){            //https://www.trufflesuite.com/tutorials/pet-shop
-
-   //  var voteInstance;
-   //  App.contracts.vote.deployed().then(function(instance) {  // instance : json 
-
-   //    voteInstance = instance;
-
-   //    return voteInstance.getChairperson.call();  // call to getChairPerson , if vote pressed, disable it
-   //    }).then(function(voters) {
-   //      for (i = 0; i < voters.length; i++) {
-   //        if (voters[i] !== '0x0000000000000000000000000000000000000000') {
-   //          $('btn-vote').find('button').text('Success').attr('disabled', true);
-   //        }
-   //      }
-   //    }).catch(function(err) {
-   //      console.log(err.message);
-
-   //    });
-   // },
-
-
-
-
-   /**
-    * 
-    */
-   populateAddress : function(){
-    new Web3(new Web3.providers.HttpProvider(App.url)).eth.getAccounts((err, accounts) => {
-      jQuery.each(accounts,function(i){
-        if(web3.eth.coinbase != accounts[i]){
-          var optionElement = '<option value="'+accounts[i]+'">'+accounts[i]+'</option';
-          jQuery('#enter_address').append(optionElement);  
-        }
-      });
-    });
-  },
-
-
-
-
-
-
-
-
-
 
 
 

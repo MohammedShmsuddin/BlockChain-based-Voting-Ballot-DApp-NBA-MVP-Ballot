@@ -7,10 +7,10 @@
     <title>NBA Ballot Manager</title>
 <!--     <link rel="stylesheet" type="text/css" href="main.css">
  -->	<link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
- <!-- 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap.min.css">
-	
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script> -->
-	<!-- <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.js"></script> -->
+<!--  	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.18/css/dataTables.bootstrap.min.css">
+ -->	
+<!--   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+ -->	<!-- <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.js"></script> -->
 <!-- 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.18/js/jquery.dataTables.min.js"></script>
  -->	
 <!--  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap.min.js"></script>
@@ -68,9 +68,12 @@
                          
                         <div id="lbl_address">Official Address: </div>
                 		<div id="lbl_state">State: </div>
+                                  <button class="btn btn-success" type="button" id="win-count" style="float:right; margin-right: 5px;">Winning Proposal</button>
+
                 	</div>
             	</div>    
             </div>
+
             
 
             <div class="col-md-6">    
@@ -134,6 +137,15 @@
         	</div>
         </div>
         
+          <div class="col-md">                    
+                                <div class="form-group">
+                                    <label for="tally-points">Enter candidate ID</label>
+                                    <input id="tally-points" class="form-control" type="text">
+
+                                                         <input id="tally-button" class="btn btn-primary" type="button" value="Tally Points" />
+
+                                </div>
+                            </div>
 
 
 
@@ -144,12 +156,12 @@
 
         	        <div id="section_addCandidate">
             	        <div class="row">
-                            <div class="col-md-6">
+                            <!-- <div class="col-md-6">
                             	<div class="form-group">
                         			<label for="txtNewVoterAddress">Candidate Name</label>
                         			<input id="candidateName" class="form-control" type="text">
                             	</div>
-                            </div>
+                            </div> -->
                             <div class="col-md-6">                    
                             	<div class="form-group">
                         			<label for="txtNewVoterName">Candidate ID</label>
@@ -194,14 +206,14 @@
                             <input id="fourthPick" class="form-control" type="text" >
                              <label for="fpick">Fifth Pick</label>
                             <input id="fifthPick" class="form-control" type="text" >  <!-- last pick -->
-
+                                   
 						</div>
 					</div>
 				</div>
 				<div class="form-group">
 
-					<input id="vote" class="btn btn-primary" type="button" value="Vote" />
 					
+					 <input id="vote" class="btn btn-primary" type="button" value="Vote" />
 			</div>
 		</div>
 	
@@ -221,7 +233,8 @@
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="js/dist/bootstrap.min.js"></script>
-<script src="js/dist/web3.min.js"></script>
+
+ <script src="js/dist/web3.min.js"></script>
 <script src="js/dist/truffle-contract.js"></script>
 <script src="js/app.js"></script>
 
