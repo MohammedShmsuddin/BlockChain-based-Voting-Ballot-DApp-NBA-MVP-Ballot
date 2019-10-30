@@ -229,20 +229,20 @@ contract NBA_MVP_Ballot {
     
     
     // Return the Winner
-    function winningProposal() public inState(State.Ended) {
+    function winningProposal() public inState(State.Ended) returns (uint){
         
         uint256 mostPoints = 0;
-        //uint winner ; // playerID of player with most points 
+         
         
         for (uint i = 0; i < candidateNumber; i++){
-            if (candidateRegister[candidatePoints[i]].points > mostPoints) { // candidate[i] gives u the ID of candidate
-                mostPoints = candidateRegister[candidatePoints[i]].points ; // each int .. from 0 to 4 is paired with                                                                  
+            if (candidateRegister[candidatePoints[i]].points > mostPoints) {    // candidate[i] gives u the ID of candidate
+                mostPoints = candidateRegister[candidatePoints[i]].points;     // each int .. from 0 to 4 is paired with                                                                  
                 winner = candidatePoints[i];
-          
             }
         }
         
         emit voteEnded(winner);
+        return winner;
     }
     
     

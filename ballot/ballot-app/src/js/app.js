@@ -6,6 +6,7 @@
   url: 'http://127.0.0.1:7545',
   chairPerson:null,
   currentAccount:null,
+  numOfcandidate: 0,
   
 
 
@@ -94,42 +95,40 @@
 // takes in playerID -> returns points
 //returns uint --> points                    not working 
 checkPoints : function(candidateID){
-var voteInstance;
+        var voteInstance;
         App.contracts.vote.deployed().then(function(instance) {
           voteInstance = instance;
           return voteInstance.tallyPoints(candidateID);   // how can display this result??
- }).then(function(result, err){
+            }).then(function(result, err){
             if(result){
-                if(parseInt(result.receipt.status) == 1)
-                alert(candidateID + " has  points")
-                else
-                alert(result + " not done successfully due to revert")
-            } else {
-                alert(result + "  failed")
-            }   
+                  alert(candidateID + " has  points" + result)
+                } else {
+                    alert(result + "  failed")
+                }   
         });
 },
 
-   // * @param {*} addr 
+
 
 winner : function(){      //what does result output... how can get result from calling solidity function winningProposal..
-var voteInstance;
+        var voteInstance;
         App.contracts.vote.deployed().then(function(instance) {
           voteInstance = instance;
           return voteInstance.winningProposal();
- }).then(function(result, err){
+        }).then(function(result, err){
             if(result){
-                if(parseInt(result.receipt.status) == 1)
-                alert(result + " has won!")
-                else
-                alert(result + " not done successfully due to revert")
+                //if(parseInt(result.receipt.status) == 1)
+                    console.log("our new results: " + result["logs"]["0"]["args"]["finalResult"]);
+                    alert(result["logs"]["0"]["args"]["finalResult"] + " has won!")
+                //else
+                    //alert(result + " not done successfully due to revert")
             } else {
                 alert(result + "  failed")
             }   
         });
 },
 
-    getChairperson : function(){
+  getChairperson : function(){
     App.contracts.vote.deployed().then(function(instance) {
       return instance;
     }).then(function(result) {
@@ -174,18 +173,20 @@ var voteInstance;
      * @param {*} id 
      */
   addCandidate : function(addr){  // need to id each candidate 0...4
- var voteInstance;
+        
+        var voteInstance;
         App.contracts.vote.deployed().then(function(instance) {
           voteInstance = instance;
           return voteInstance.registerCandidate(addr);
         }).then(function(result, err){
             if(result){
-                if(parseInt(result.receipt.status) == 1)    {
-              alert(addr + " candidate registration done successfully")
-               $('#candidate-list').append("<li>"+ addr +"</li>" );
+                if(parseInt(result.receipt.status) == 1 && App.numOfcandidate < 5)    {
+                    App.numOfcandidate++;
+                    alert(addr + " candidate registration done successfully")
+                    $('#candidate-list').append("<li>"+ addr +"</li>" );
           }
-              else{
-                alert(addr + " registration not done successfully due to revert")
+                else{
+                    alert(addr + " registration not done successfully due to revert")
          
           }  
         }
@@ -216,7 +217,7 @@ var voteInstance;
   
    
 
-   populateAddress : function(){
+populateAddress : function(){
     new Web3(new Web3.providers.HttpProvider(App.url)).eth.getAccounts((err, accounts) => {
       jQuery.each(accounts,function(i){
         if(web3.eth.coinbase != accounts[i]){
@@ -239,7 +240,7 @@ var voteInstance;
     $('btnAdd2').find('button').attr('disabled', true);   // Add Candidate button
 
 
-var voteInstance;
+      var voteInstance;
         App.contracts.vote.deployed().then(function(instance) {
           voteInstance = instance;
           return voteInstance.startVoting();
