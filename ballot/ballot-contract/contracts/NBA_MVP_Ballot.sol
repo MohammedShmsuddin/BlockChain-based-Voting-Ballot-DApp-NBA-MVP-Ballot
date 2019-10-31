@@ -155,19 +155,19 @@ contract NBA_MVP_Ballot {
 
 
     // to unregister such candidate, we will locate their Player object and make their instance variable isRegistered to false
-    function unRegisterCandidate(uint _playerId) public inState(State.Created) onlyOfficial returns (uint) {
-        //candidateRegister[_playerId] = Player(_playerId, 0, false) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
-        //candidateNumber--;
+    function unRegisterCandidate(uint _playerId) public inState(State.Created) onlyOfficial {
+        candidateRegister[_playerId] = Player(_playerId, 0, false) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
+        candidateNumber--;
             
             
-        for (uint i = 0; i <= candidateNumber; i++){
+        /*for (uint i = 0; i <= candidateNumber; i++){
             if(candidateRegister[i].playerId == _playerId){
                 player[i] = Player(0,0,false);  // if player exists in player array.. remove it somehow
                 candidateNumber--;
             }
         }
            
-        return candidateNumber; 
+        return candidateNumber; */
     }
 
     // to unregister such voter, we will locate their voter object and make their instance variable isRegistered to false
@@ -199,11 +199,25 @@ contract NBA_MVP_Ballot {
     function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public inState(State.Voting) {
         
         if(voterRegister[_voterAddress].isRegistered && !(voterRegister[_voterAddress].hasVoted)) {  // verifying that voter is registered
-            candidateRegister[pref1].points += 10;                                                     // also that the user hasn't already voted!
-            candidateRegister[pref2].points += 7;
-            candidateRegister[pref3].points += 5;
-            candidateRegister[pref4].points += 3;
-            candidateRegister[pref5].points += 1;
+            if(candidateRegister[pref1].isRegistered) {       
+                candidateRegister[pref1].points += 10;  
+            } 
+            
+            if(candidateRegister[pref2].isRegistered) {
+                candidateRegister[pref2].points += 7;
+            }
+            
+            if(candidateRegister[pref3].isRegistered) {
+                candidateRegister[pref3].points += 5;
+            }
+            
+            if(candidateRegister[pref4].isRegistered) {
+                candidateRegister[pref4].points += 3;
+            }
+            
+            if(candidateRegister[pref5].isRegistered) {
+                candidateRegister[pref5].points += 1;
+            }
             voterRegister[_voterAddress].hasVoted = true;
             totalVote++;
                                                                //vote!  update players points accordingly

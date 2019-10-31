@@ -7,11 +7,14 @@
   chairPerson:null,
   currentAccount:null,
   numOfcandidate: 0,
+  numOfvoters: 0,
+  numOfvote: 0,
   
 
 
 
    init: function() {
+
      return App.initWeb3();
    },
   
@@ -50,8 +53,8 @@
 
        App.getChairperson(); //initializes chairPerson and currentAccount
 
-        return App.bindEvents();
-  });
+       return App.bindEvents();
+    });
 
   },
 
@@ -61,10 +64,10 @@
   /**
    * 
    */
-  bindEvents: function() {    // none of these functions are working at the moments
+  bindEvents: function() {    
 
-    $(document).on('click', '#btnStart', App.startVote);
-    $(document).on('click', '#btnEnd', App.endVote);
+    $(document).on('click', '#btnStart', function() {$("#lbl_state").text("State: Voting"); App.startVote();});
+    $(document).on('click', '#btnEnd', function() {$("#lbl_state").text("State: Ended"); App.endVote();});
     $(document).on('click', '#win-count', App.winner);
 
     $(document).on('click', '#tally-button', function(){
@@ -88,45 +91,61 @@
 
       App.handleVote(ad,first,second,third,fourth,fifth);
 
-  });
+    });
+
+    $(document).on('click', '#btnRemoveVoter', function(){
+      var voterAddress = $('#address-remove').val();
+      App.removeVoter(voterAddress);
+    });
+
+
+    $(document).on('click', '#btnRemoveCandidate', function(){
+      var candidateID = $('#candidateIDtoRemove').val();
+      App.removeCandidate(candidateID);
+    });
+
 
   },
 
-// takes in playerID -> returns points
-//returns uint --> points                    not working 
-checkPoints : function(candidateID){
-        var voteInstance;
-        App.contracts.vote.deployed().then(function(instance) {
-          voteInstance = instance;
-          return voteInstance.tallyPoints(candidateID);   // how can display this result??
-            }).then(function(result, err){
-            if(result){
-                  alert(candidateID + " has  points" + result)
-                } else {
-                    alert(result + "  failed")
-                }   
-        });
-},
+  // takes in playerID -> returns points
+  // returns uint --> points                    
+  checkPoints : function(candidateID){
+    var voteInstance;
+    App.contracts.vote.deployed().then(function(instance) {
+      voteInstance = instance;
+      return voteInstance.tallyPoints(candidateID);   // how can display this result??
+    }).then(function(result, err){
+      if(result){
+          alert(candidateID + " recieved " + result + " points")
+      } else {
+          alert(result + "  failed")
+      }   
+    });
+
+  },
 
 
 
-winner : function(){      //what does result output... how can get result from calling solidity function winningProposal..
-        var voteInstance;
-        App.contracts.vote.deployed().then(function(instance) {
-          voteInstance = instance;
-          return voteInstance.winningProposal();
-        }).then(function(result, err){
-            if(result){
-                //if(parseInt(result.receipt.status) == 1)
-                    console.log("our new results: " + result["logs"]["0"]["args"]["finalResult"]);
-                    alert(result["logs"]["0"]["args"]["finalResult"] + " has won!")
-                //else
-                    //alert(result + " not done successfully due to revert")
-            } else {
-                alert(result + "  failed")
-            }   
-        });
-},
+  /**
+   * 
+   */
+  winner : function(){      //what does result output... how can get result from calling solidity function winningProposal..
+    var voteInstance;
+    App.contracts.vote.deployed().then(function(instance) {
+      voteInstance = instance;
+      return voteInstance.winningProposal();
+    }).then(function(result, err){
+      if(result){
+          //console.log("our new results: " + result["logs"]["0"]["args"]["finalResult"]);
+          alert("Candidate " + result["logs"]["0"]["args"]["finalResult"] + " has Won!")
+                  
+      } else {
+          alert(result + "  failed")
+      }   
+
+    });
+
+  },
 
   getChairperson : function(){
     App.contracts.vote.deployed().then(function(instance) {
@@ -139,6 +158,13 @@ winner : function(){      //what does result output... how can get result from c
         jQuery('#panels_voters').css('display','none');
         jQuery('#panels_candidate').css('display','none');
       }else{
+        $(document).ready(function(){
+          $("#lbl_state").text("State: Created");
+          $("#lbl_address").text("Official Address: " + App.chairPerson);
+          $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoters);
+          $("#lbl_votes_num").text("Number Of Votes: " + App.numOfvote);
+
+        });
         jQuery('#panels_new_Ballot').css('display','block');
         jQuery('#panels_voters').css('display','block');
         jQuery('#panels_candidate').css('display','block');
@@ -148,24 +174,66 @@ winner : function(){      //what does result output... how can get result from c
 
   
 
-   addVoter : function(addr){
+  addVoter : function(addr){
 
-        var voteInstance;
-        App.contracts.vote.deployed().then(function(instance) {
-          voteInstance = instance;
-          return voteInstance.registerVoter(addr);
-        }).then(function(result, err){
-            if(result){
-                if(parseInt(result.receipt.status) == 1)
-                alert(addr + " registration done successfully")
-                else
-                alert(addr + " registration not done successfully due to revert")
+    var voteInstance;
+    App.contracts.vote.deployed().then(function(instance) {
+      voteInstance = instance;
+      return voteInstance.registerVoter(addr);
+    }).then(function(result, err){
+      if(result){
+        if(parseInt(result.receipt.status) == 1) {
+            alert(addr + " registration done successfully")
+            App.numOfvoters++;
+            $(document).ready(function(){
+              $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoters);
+            });
+
+        } else {
+            alert(addr + " registration not done successfully due to revert")
+        }
+      } else {
+            alert(addr + " registration failed")
+      }   
+
+    });
+
+  },   
+
+
+  
+  /**
+   * takes in voter address to remove
+   * @param {*} addr 
+   */
+  removeVoter : function(addr){
+
+    var voteInstance;
+    App.contracts.vote.deployed().then(function(instance) {
+      voteInstance = instance;
+      return voteInstance.unRegisterVoter(addr);
+    }).then(function(result, err){
+        if(result){
+            if(parseInt(result.receipt.status) == 1) {
+              alert(addr + " has been remove successfully")
+              App.numOfvoters--;
+              $(document).ready(function(){
+                $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoters);
+              });
             } else {
-                alert(addr + " registration failed")
-            }   
-        });
+              alert(addr + " registration not done successfully due to revert")
+            }
+        } else {
+            alert(addr + " registration failed")
+        }   
+    });
 
-    },   
+  },  
+
+
+
+
+
 
     /**
      * 
@@ -174,98 +242,128 @@ winner : function(){      //what does result output... how can get result from c
      */
   addCandidate : function(addr){  // need to id each candidate 0...4
         
-        var voteInstance;
-        App.contracts.vote.deployed().then(function(instance) {
-          voteInstance = instance;
-          return voteInstance.registerCandidate(addr);
-        }).then(function(result, err){
-            if(result){
-                if(parseInt(result.receipt.status) == 1 && App.numOfcandidate < 5)    {
-                    App.numOfcandidate++;
-                    alert(addr + " candidate registration done successfully")
-                    $('#candidate-list').append("<li>"+ addr +"</li>" );
-          }
-                else{
-                    alert(addr + " registration not done successfully due to revert")
-         
+    var voteInstance;
+    App.contracts.vote.deployed().then(function(instance) {
+      voteInstance = instance;
+      return voteInstance.registerCandidate(addr);
+    }).then(function(result, err){
+      if(result){
+          if(parseInt(result.receipt.status) == 1 && App.numOfcandidate < 5) {
+              App.numOfcandidate++;
+              alert(addr + " candidate registration done successfully")
+              $('#candidate-list').append("<li>"+ addr +"</li>" );
+          } else {
+              alert(addr + " registration not done successfully due to revert")
           }  
-        }
+      } else {
+          alert(addr + " registration failed")
+      }
+
+    });
 
 
-           else {
-                alert(addr + " registration failed")
-            }
-          });
+  },   
 
 
 
-    },   
+  /**
+   * 
+   * @param {*} addr 
+   */
+  removeCandidate: function(addr){
 
-    /*
+    var voteInstance;
+    App.contracts.vote.deployed().then(function(instance) {
+      voteInstance = instance;
+      return voteInstance.unRegisterCandidate(addr);
+    }).then(function(result, err){
+      if(result){
+          if(parseInt(result.receipt.status) == 1) {
+              App.numOfcandidate--;
+              alert("Candidate " + addr + " has been remove successfully")
+              $('#candidate-list').remove("<li>"+ addr +"</li>" );
+              
+          } else {
+              //alert(addr + " registration not done successfully due to revert")
+          }  
+      } else {
+          alert(addr + " registration failed")
+      }
+
+    });
+
+  },  
+
+
+
+
+/*
 
     function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public inState(State.Voting) {
 
 */
    
 handleVote: function(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick){   // can subsitute addr with person deploying current contract..
-var voteInstance;
-        App.contracts.vote.deployed().then(function(instance) {
-          voteInstance = instance;
-          return voteInstance.votePlayer(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick);
-   });
-   },
+  var voteInstance;
+  App.contracts.vote.deployed().then(function(instance) {
+    voteInstance = instance;
+    App.numOfvote++;
+    $(document).ready(function(){
+        $("#lbl_votes_num").text("Number Of Votes: " + App.numOfvote);
+    });
+    return voteInstance.votePlayer(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick);
+  });
+
+},
   
    
 
 populateAddress : function(){
-    new Web3(new Web3.providers.HttpProvider(App.url)).eth.getAccounts((err, accounts) => {
-      jQuery.each(accounts,function(i){
-        if(web3.eth.coinbase != accounts[i]){
+  new Web3(new Web3.providers.HttpProvider(App.url)).eth.getAccounts((err, accounts) => {
+    jQuery.each(accounts,function(i){
+      if(web3.eth.coinbase != accounts[i]){
           var optionElement = '<option value="'+accounts[i]+'">'+accounts[i]+'</option';
           jQuery('#enter_address').append(optionElement);  
-        }
-      });
+          jQuery('#address-remove').append(optionElement);
+      }
     });
-  },
-
-   /**
-    * 
-    * @param {*} event 
-    */
-   startVote : function(event) {
-
-    $('btnGo').find('button').attr('disabled', true);  //Validate button
-    $('btnStart').find('button').attr('disabled', true);  //StartVoting button
-    $('btnAdd1').find('button').attr('disabled', true);  //Add Voter button
-    $('btnAdd2').find('button').attr('disabled', true);   // Add Candidate button
+  });
+},
 
 
-      var voteInstance;
-        App.contracts.vote.deployed().then(function(instance) {
-          voteInstance = instance;
-          return voteInstance.startVoting();
-        });
-   },
+
+   
+startVote : function(event) {
+
+  var voteInstance;
+  App.contracts.vote.deployed().then(function(instance) {
+      voteInstance = instance;
+      return voteInstance.startVoting();
+      
+  });
+   
+},
 
 
-   endVote : function(event) {
+endVote : function(event) {
 
-    $('vote').find('button').attr('disabled', true);
-    $('btnEnd').find('button').attr('disabled', true);
+  var voteInstance;
+  App.contracts.vote.deployed().then(function(instance) {
+    voteInstance = instance;
+    return voteInstance.endVoting();
 
-    var voteInstance;
-        App.contracts.vote.deployed().then(function(instance) {
-          voteInstance = instance;
-          return voteInstance.endVoting();
-        });
+  });
 
-   },
+},
+
+
 
 
 
 };      // End of DApp
 
-  
+
+
 
 
 $(function() {
