@@ -120,19 +120,22 @@ contract NBA_MVP_Ballot {
 
 
     // to register such voter, we will locate their voter object and make their instance variable isRegistered to true
-    function registerVoter(address _voterAddress) public inState(State.Created) onlyOfficial {
+    function registerVoter(address _voterAddress) public inState(State.Created) onlyOfficial returns (uint) {
         
         require(_voterAddress != ballotOfficialAddress);
         
         // the ballot official are not allowed to vote
-        voter memory v;
-        v.voterAddress = _voterAddress;
-        v.hasVoted = false;
-        v.isRegistered = true;
-        voterRegister[_voterAddress] = v;  //voter ( voterId , hasVoted , isRegistered)
-        voterNumber++;
+        if(!(voterRegister[_voterAddress].isRegistered)) {
+            voter memory v;
+            v.voterAddress = _voterAddress;
+            v.hasVoted = false;
+            v.isRegistered = true;
+            voterRegister[_voterAddress] = v;  //voter ( voterId , hasVoted , isRegistered)
+            voterNumber++;
+        }
+
         emit voterAdded(_voterAddress);
-        
+        return voterNumber;
     }
     
     
@@ -143,21 +146,25 @@ contract NBA_MVP_Ballot {
         
         if (candidateNumber > 5) {
              return candidateNumber;
-        } else if (candidateNumber < 5) {
+        } else if (candidateNumber < 5 && !(candidateRegister[_playerId].isRegistered)) {
             candidateRegister[_playerId] = Player(_playerId, 0, true) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
             candidateNumber++;  // now that we have a candidate registered , we can increase the counter
             candidatePoints[iter] = _playerId;  // pair each number 0...4 with playerID 
             iter++;
-            return _playerId;
+            return candidateNumber;
         }
         emit candidateAdded(_playerId);
     }
 
 
     // to unregister such candidate, we will locate their Player object and make their instance variable isRegistered to false
-    function unRegisterCandidate(uint _playerId) public inState(State.Created) onlyOfficial {
-        candidateRegister[_playerId] = Player(_playerId, 0, false) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
-        candidateNumber--;
+    function unRegisterCandidate(uint _playerId) public inState(State.Created) onlyOfficial returns (uint) {
+        //candidateRegister[_playerId] = Player(_playerId, 0, false) ;  //registerCandidate("LBJ")  ...  source: https://solidity.readthedocs.io/en/v0.4.24/types.html
+        
+        if(candidateRegister[_playerId].isRegistered) {
+            delete candidateRegister[_playerId];
+            candidateNumber--;
+        }
             
             
         /*for (uint i = 0; i <= candidateNumber; i++){
@@ -165,39 +172,39 @@ contract NBA_MVP_Ballot {
                 player[i] = Player(0,0,false);  // if player exists in player array.. remove it somehow
                 candidateNumber--;
             }
-        }
+        }*/
            
-        return candidateNumber; */
+        return candidateNumber; 
     }
 
     // to unregister such voter, we will locate their voter object and make their instance variable isRegistered to false
-    function unRegisterVoter(address _voterAddress) public inState(State.Created) onlyOfficial {
-        voterRegister[_voterAddress] = voter(_voterAddress, false,false);   // hasVoted == false
+    function unRegisterVoter(address _voterAddress) public inState(State.Created) onlyOfficial returns (uint) {
+
+        if(voterRegister[_voterAddress].isRegistered) {
+            delete voterRegister[_voterAddress];   // hasVoted == false
+            voterNumber--;
+        }
+
+        return voterNumber;
     }
 
-
-                            /*
-                                1st place - 10 points
-                                2nd place - 7 points
-                                3rd place - 5 points
-                                4th place - 3 points
-                                5th place - 1 point
-                                
-                            */
                                 
                                 
                                 
     // declare voting starts now
-    function startVoting() public inState(State.Created) onlyOfficial {
-        state = State.Voting;     
+    function startVoting() public inState(State.Created) onlyOfficial returns (uint) {    
         emit voteStarted();
+        state = State.Voting; 
+        return 1;
     }
     
 
     // user will enter playerId of their top preferences
     // the candidates will have their points updated accoridng to the voter's preferences
-    function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public inState(State.Voting) {
+    function votePlayer(address _voterAddress , uint pref1 , uint pref2, uint pref3, uint pref4, uint pref5) public inState(State.Voting) returns(uint){
         
+        require(_voterAddress != ballotOfficialAddress);
+
         if(voterRegister[_voterAddress].isRegistered && !(voterRegister[_voterAddress].hasVoted)) {  // verifying that voter is registered
             if(candidateRegister[pref1].isRegistered) {       
                 candidateRegister[pref1].points += 10;  
@@ -224,21 +231,25 @@ contract NBA_MVP_Ballot {
         }
     
         emit voteDone(msg.sender);
+        return totalVote;
     }
     
     
     
     // End the voting
-    function endVoting() public inState(State.Voting) onlyOfficial {
+    function endVoting() public inState(State.Voting) onlyOfficial returns (uint) {
         state = State.Ended;
-
+        return 2;
     }
     
     
     // this is used to collect all the points. We do so by accessing the playerID of the hashmap to get value -> points
     function tallyPoints (uint _playerId) public view inState(State.Ended) returns (uint){
-      uint _points = candidateRegister[_playerId].points;
-      return _points;
+        uint _points;
+        if(candidateRegister[_playerId].isRegistered) {
+            _points = candidateRegister[_playerId].points;
+        }
+        return _points;
     }
     
     

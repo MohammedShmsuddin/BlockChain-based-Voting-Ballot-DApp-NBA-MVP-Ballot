@@ -2,19 +2,17 @@
 
   web3Provider: null,
   contracts: {},
-  player: new Array(),
   url: 'http://127.0.0.1:7545',
   chairPerson:null,
   currentAccount:null,
   numOfcandidate: 0,
-  numOfvoters: 0,
+  numOfvoter: 0,
   numOfvote: 0,
   
 
 
 
    init: function() {
-
      return App.initWeb3();
    },
   
@@ -66,8 +64,8 @@
    */
   bindEvents: function() {    
 
-    $(document).on('click', '#btnStart', function() {$("#lbl_state").text("State: Voting"); App.startVote();});
-    $(document).on('click', '#btnEnd', function() {$("#lbl_state").text("State: Ended"); App.endVote();});
+    $(document).on('click', '#btnStart', App.startVote);
+    $(document).on('click', '#btnEnd', App.endVote);
     $(document).on('click', '#win-count', App.winner);
 
     $(document).on('click', '#tally-button', function(){
@@ -76,10 +74,7 @@
     }); 
 
     $(document).on('click', '#btnAdd1', function(){ var ad = $('#enter_address').val(); App.addVoter(ad); });
-    $(document).on('click', '#btnAdd2', function(){ 
-      var name = $('#candidateName').val(); var id = $('#candidateID').val();  
-       App.addCandidate(id); 
-    });
+    $(document).on('click', '#btnAdd2', function(){ var name = $('#candidateName').val(); var id = $('#candidateID').val();   App.addCandidate(name, id); });
 
     $(document).on('click', '#vote',  function(){ 
       var ad = $('#voterAddress').val(); 
@@ -104,8 +99,9 @@
       App.removeCandidate(candidateID);
     });
 
-
   },
+
+
 
   // takes in playerID -> returns points
   // returns uint --> points                    
@@ -136,9 +132,8 @@
       return voteInstance.winningProposal();
     }).then(function(result, err){
       if(result){
-          //console.log("our new results: " + result["logs"]["0"]["args"]["finalResult"]);
-          alert("Candidate " + result["logs"]["0"]["args"]["finalResult"] + " has Won!")
-                  
+          //console.log("our new results: " + JSON.stringify(result));
+          alert("Candidate " + result["logs"]["0"]["args"]["finalResult"] + " has Won!")           
       } else {
           alert(result + "  failed")
       }   
@@ -146,6 +141,7 @@
     });
 
   },
+
 
   getChairperson : function(){
     App.contracts.vote.deployed().then(function(instance) {
@@ -161,7 +157,7 @@
         $(document).ready(function(){
           $("#lbl_state").text("State: Created");
           $("#lbl_address").text("Official Address: " + App.chairPerson);
-          $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoters);
+          $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoter);
           $("#lbl_votes_num").text("Number Of Votes: " + App.numOfvote);
 
         });
@@ -184,9 +180,11 @@
       if(result){
         if(parseInt(result.receipt.status) == 1) {
             alert(addr + " registration done successfully")
-            App.numOfvoters++;
+            App.numOfvoter++;
+            //console.log("our new results: " + JSON.stringify(result));
             $(document).ready(function(){
-              $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoters);
+              $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoter);
+              $('#voterTable').append('<tr><td>'+App.numOfvoter+'</td><td>'+addr+'</td></tr>');
             });
 
         } else {
@@ -216,9 +214,13 @@
         if(result){
             if(parseInt(result.receipt.status) == 1) {
               alert(addr + " has been remove successfully")
-              App.numOfvoters--;
+              App.numOfvoter--;
               $(document).ready(function(){
-                $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoters);
+                $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoter);
+                $("#voterTable tr td:contains('" + addr + "')").filter(function() {
+                  return $(this).text().trim() == addr;
+                }).parent().remove();
+
               });
             } else {
               alert(addr + " registration not done successfully due to revert")
@@ -240,7 +242,7 @@
      * our registerCandidate function maps uint 0...4 with the candidates ID we add.
      * @param {*} id 
      */
-  addCandidate : function(addr){  // need to id each candidate 0...4
+  addCandidate : function(name, addr){  // need to id each candidate 0...4
         
     var voteInstance;
     App.contracts.vote.deployed().then(function(instance) {
@@ -250,8 +252,11 @@
       if(result){
           if(parseInt(result.receipt.status) == 1 && App.numOfcandidate < 5) {
               App.numOfcandidate++;
-              alert(addr + " candidate registration done successfully")
-              $('#candidate-list').append("<li>"+ addr +"</li>" );
+              alert("Candidate " + addr + " registration done successfully")
+              $(document).ready(function(){
+                $('#candidateTable').append('<tr><td>'+addr+'</td><td>'+name+'</td></tr>');
+              });
+
           } else {
               alert(addr + " registration not done successfully due to revert")
           }  
@@ -281,10 +286,12 @@
           if(parseInt(result.receipt.status) == 1) {
               App.numOfcandidate--;
               alert("Candidate " + addr + " has been remove successfully")
-              $('#candidate-list').remove("<li>"+ addr +"</li>" );
+              $("#candidateTable tr td:contains('" + addr + "')").filter(function() {
+                return $(this).text().trim() == addr;
+              }).parent().remove();
               
           } else {
-              //alert(addr + " registration not done successfully due to revert")
+              alert(addr + " registration not done successfully due to revert")
           }  
       } else {
           alert(addr + " registration failed")
@@ -307,11 +314,15 @@ handleVote: function(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick){ 
   var voteInstance;
   App.contracts.vote.deployed().then(function(instance) {
     voteInstance = instance;
-    App.numOfvote++;
-    $(document).ready(function(){
-        $("#lbl_votes_num").text("Number Of Votes: " + App.numOfvote);
-    });
     return voteInstance.votePlayer(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick);
+  }).then(function(result, err) {
+    if(result) {
+      $(document).ready(function(){
+        App.numOfvote++;
+        $("#lbl_votes_num").text("Number Of Votes: " + App.numOfvote);
+      });
+
+    }
   });
 
 },
@@ -339,6 +350,13 @@ startVote : function(event) {
   App.contracts.vote.deployed().then(function(instance) {
       voteInstance = instance;
       return voteInstance.startVoting();
+  }).then(function(result, err) {
+    if(result) {
+      $(document).ready(function(){
+        $("#lbl_state").text("State: Voting");
+      });
+
+    }
       
   });
    
@@ -351,6 +369,13 @@ endVote : function(event) {
   App.contracts.vote.deployed().then(function(instance) {
     voteInstance = instance;
     return voteInstance.endVoting();
+  }).then(function(result, err) {
+    if(result) {
+      $(document).ready(function(){
+        $("#lbl_state").text("State: Ended");
+      });
+
+    }
 
   });
 
