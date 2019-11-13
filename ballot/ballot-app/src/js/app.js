@@ -6,9 +6,6 @@
   chairPerson:null,
   currentAccount:null,
   numOfcandidate: 0,
-  numOfvoter: 0,
-  numOfvote: 0,
-  
 
 
 
@@ -157,8 +154,8 @@
         $(document).ready(function(){
           $("#lbl_state").text("State: Created");
           $("#lbl_address").text("Official Address: " + App.chairPerson);
-          $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoter);
-          $("#lbl_votes_num").text("Number Of Votes: " + App.numOfvote);
+          $("#lbl_voters_num").text("Number Of Voters: " + 0);
+          $("#lbl_votes_num").text("Number Of Votes: " + 0);
 
         });
         jQuery('#panels_new_Ballot').css('display','block');
@@ -180,11 +177,10 @@
       if(result){
         if(parseInt(result.receipt.status) == 1) {
             alert(addr + " registration done successfully")
-            App.numOfvoter++;
-            //console.log("our new results: " + JSON.stringify(result));
+            //console.log("add voter: " + JSON.stringify(result));
             $(document).ready(function(){
-              $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoter);
-              $('#voterTable').append('<tr><td>'+App.numOfvoter+'</td><td>'+addr+'</td></tr>');
+              $("#lbl_voters_num").text("Number Of Voters: " + result["logs"]["0"]["args"]["voterNum"]);
+              $('#voterTable').append('<tr><td>'+result["logs"]["0"]["args"]["voterNum"]+'</td><td>'+addr+'</td></tr>');
             });
 
         } else {
@@ -214,9 +210,9 @@
         if(result){
             if(parseInt(result.receipt.status) == 1) {
               alert(addr + " has been remove successfully")
-              App.numOfvoter--;
+              //console.log("remove voter: " + JSON.stringify(result));
               $(document).ready(function(){
-                $("#lbl_voters_num").text("Number Of Voters: " + App.numOfvoter);
+                $("#lbl_voters_num").text("Number Of Voters: " + result["logs"]["0"]["args"]["voterNum"]);
                 $("#voterTable tr td:contains('" + addr + "')").filter(function() {
                   return $(this).text().trim() == addr;
                 }).parent().remove();
@@ -231,10 +227,6 @@
     });
 
   },  
-
-
-
-
 
 
     /**
@@ -317,9 +309,9 @@ handleVote: function(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick){ 
     return voteInstance.votePlayer(addr,firstPick,secondPick,thirdPick,fourthPick,fifthPick);
   }).then(function(result, err) {
     if(result) {
+      //console.log("vote: " + JSON.stringify(result));
       $(document).ready(function(){
-        App.numOfvote++;
-        $("#lbl_votes_num").text("Number Of Votes: " + App.numOfvote);
+        $("#lbl_votes_num").text("Number Of Votes: " + result["logs"]["0"]["args"]["totalVote"]);
       });
 
     }

@@ -95,11 +95,12 @@ contract NBA_MVP_Ballot {
 // -------------------------------------------------------------- Events ----------------------------------------------------------------------------------------
 
     // event
-    event voterAdded(address voter);
-    event candidateAdded(uint _candidateID);
+    event voterAdded(uint voterNum);
+    event voterRemoved(uint voterNum);
+    event candidateAdded(uint _candidateID, uint _numOfCandidate);
     event voteStarted();
     event voteEnded(uint finalResult);
-    event voteDone(address voter);
+    event voteDone(address voter, uint totalVote);
 
 
 
@@ -134,7 +135,7 @@ contract NBA_MVP_Ballot {
             voterNumber++;
         }
 
-        emit voterAdded(_voterAddress);
+        emit voterAdded(voterNumber);
         return voterNumber;
     }
     
@@ -151,9 +152,9 @@ contract NBA_MVP_Ballot {
             candidateNumber++;  // now that we have a candidate registered , we can increase the counter
             candidatePoints[iter] = _playerId;  // pair each number 0...4 with playerID 
             iter++;
-            return candidateNumber;
         }
-        emit candidateAdded(_playerId);
+        emit candidateAdded(_playerId, candidateNumber);
+        return candidateNumber;
     }
 
 
@@ -185,6 +186,7 @@ contract NBA_MVP_Ballot {
             voterNumber--;
         }
 
+        emit voterRemoved(voterNumber);
         return voterNumber;
     }
 
@@ -230,7 +232,7 @@ contract NBA_MVP_Ballot {
                                                                //vote!  update players points accordingly
         }
     
-        emit voteDone(msg.sender);
+        emit voteDone(msg.sender, totalVote);
         return totalVote;
     }
     
